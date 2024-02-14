@@ -1,0 +1,31 @@
+﻿button {
+    width: 100%;
+    border: none;
+    max-width: 250px;
+    padding: 10px;
+    background-color: var(--tint-color);
+    color: var(--secondary-color);
+    align-self: center;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.services-wrapper {
+    display: grid;
+    margin-top: 5px;
+    grid-template-columns: 1fr 1fr 1fr;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media only screen and (max-width: 900px) {
+    .services-wrapper {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media only screen and (max-width: 380px) {
+    .services-wrapper {
+        grid-template-columns: 1fr;
+    }
+}

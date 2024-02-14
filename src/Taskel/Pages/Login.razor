@@ -1,0 +1,57 @@
+﻿@page "/login"
+@using DataAccessLibrary
+@using DataTemplateLibrary
+@using DataTemplateLibrary.Models;
+@using ServerManagement;
+@using LoginService;
+@inject ServerManager ServerManager;
+@inject NavigationManager NavManager;
+@inject LoginManager LoginManager;
+
+
+<div class="login-wrapper">
+    <div class="login-form">
+        <h1>Login</h1>
+        <input type="text"     placeholder="Username" class="input-field" @bind="@usernameInput" @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
+        <input type="password" placeholder="Password" class="input-field" @bind="@passwordInput" @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
+
+        @if (!string.IsNullOrEmpty(warningText))
+        {
+            <ErrorBox message=@warningText />
+        }
+
+        <button class="submit-button" @onclick="login">Log in</button>
+    </div>
+</div>
+
+@code {
+    private string usernameInput = "";
+    private string passwordInput = "";
+    private string warningText = "";
+
+    public void login()
+    {
+        try
+        {
+            LoginManager.Login(usernameInput, passwordInput);
+            NavManager.NavigateTo("/");
+        }
+        catch (LoginSignupException e)
+        {
+            if(e.Message == "Users password is not right")
+            {
+                warningText = "Wrong credentials, invalid username or password";
+            }
+            if (e.Message == "User wasnt found in the database")
+            {
+                warningText = "Could not found an account with matching credentials.";
+            }
+        }
+    }
+
+
+    private string ConvertInputToString(object? input)
+    {
+        return input != null ? (string)input : "";
+    }
+}

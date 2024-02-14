@@ -1,0 +1,12 @@
+﻿@using LoginService;
+@inject LoginManager loginManager;
+
+@code {
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await loginManager.Fetch();
+        }
+    }
+}

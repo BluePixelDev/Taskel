@@ -1,0 +1,213 @@
+/*NORMAL - HEADER*/
+.header {
+    position: fixed;
+    top: 0;
+    display: flex;
+    align-items: center;
+    background-color: var(--header-and-footer-color);
+    width: 100%;
+    height: var(--header-height);
+    padding: 5px 20px 5px 20px;
+    z-index: 9998;
+}
+.header .navigation{
+    display:flex;
+    margin-left: auto;
+    width: auto;
+    justify-content: end;
+    align-items: center;
+    gap: 10px;
+}
+.header .logo {
+    height: 50px;
+    width: 100px;
+    background-image: url("../Images/logo.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.header-space{
+    display: flex;
+    min-height: var(--header-height);
+    width: auto;
+}
+.header a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+
+    text-decoration: none;
+    text-align: center;
+    color: var(--secondary-color);
+
+    padding: 5px 15px 5px 15px;
+    border-radius: 4px;
+}
+
+/*NORMAL - REGISTER BUTTON*/
+.navigation .header-register {
+    outline-style: solid;
+    outline-color: var(--tint-color);
+    color: var(--tint-color);
+    outline-width: 2px;
+    transition: background-color, color 0.2s;
+}
+.navigation .header-register:hover{
+     background-color: var(--tint-color);
+     color: black;
+}
+.navigation .header-register:active {
+    background-color: var(--tint-color);
+    color: black;
+}
+/*NORMAL - LOGOUT BUTTON*/
+.navigation .header-logout {
+    border: none;
+    background: none;
+    height: auto;
+    width: auto;
+
+    outline-style: solid;
+    outline-color: red;
+    color: red;
+    outline-width: 2px;
+    transition: background-color, color 0.2s;
+    text-decoration: none;
+    text-align: center;
+    color: var(--secondary-color);
+    padding: 5px 15px 5px 15px;
+    border-radius: 4px;
+}
+.navigation .header-logout:hover {
+    background-color: red;
+    color: black;
+}
+.navigation .header-logout:active {
+    background-color: red;
+    color: black;
+}
+/*NORMAL - CREDITS TEXT*/
+.header-credits{
+    color: var(--secondary-color);
+    font-size: 1em;
+    text-align: center;
+    margin: 0;
+}
+
+/*MOBILE - NAVIGATION*/
+.hamburger{
+    display: none;
+    position: relative;
+    flex-direction: column;
+    margin-left: auto;
+    border: none;
+    width: 30px;
+    height: 20px;
+    color:none;
+    background: none;
+}
+.hamburger span{
+    display: block;
+    position: absolute;
+    transition: opacity 0.2s, top 0.2s, transform 0.5s;
+    transform-origin: center;
+    background-color: white;
+    width: 100%;
+    height: 2px;
+}
+
+/*HAMBURGER NORMAL STATE*/
+.hamburger span:first-child{
+    transform: rotate(0deg);
+    top: 0px;
+}
+.hamburger span:nth-child(2){
+    top: 10px;
+    opacity: 100%
+}
+.hamburger span:last-child{
+    transform: rotate(0deg);
+    top: 20px;
+}
+
+/*HAMBURGER MENU SHOWN STATE*/
+.hamburger.menu-shown span:first-child{
+    transform: rotate(45deg);
+    top: 10px;
+}
+.hamburger.menu-shown span:nth-child(2){
+    opacity: 0%;
+}
+.hamburger.menu-shown span:last-child{
+    transform: rotate(-45deg);
+    top: 10px;
+}
+.mobile-navigation {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary-color);
+    width: 100vw;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height) - var(--footer-height));
+    transition: opacity 0.2s;
+    padding: 0.5em;
+    pointer-events: none;
+    cursor: default;
+    opacity: 0%;
+    left: 0;
+}
+.mobile-navigation a{
+    text-decoration: none;
+    text-align: center;
+    color: white;
+
+    padding: 5px 15px 5px 15px;
+    border-radius: 4px;
+}
+.mobile-navigation.menu-shown {
+    opacity: 100%;
+    pointer-events: all;
+    cursor: auto;
+}
+
+/*MOBILE - REGISTER BUTTON*/
+.mobile-navigation .header-register{
+    outline-style: solid;
+    outline-color: var(--tint-color);
+    outline-width: 2px;
+    transition: background-color, color  0.2s;
+}
+    .mobile-navigation .header-register:hover {
+        background-color: var(--tint-color);
+        color: black;
+    }
+.mobile-navigation .header-register:active {
+    background-color: white;
+    color: black;
+}
+
+@media only screen and (max-width: 780px) {
+    .hamburger{
+        display: flex;
+    }
+    .header .navigation{
+        display: none;
+    }
+}
+@media only screen and (min-width: 780px) {
+    .mobile-navigation{
+        left: 100vw;
+    }
+}
+
+@keyframes menu-animation {
+    0%{
+        left: 100vw;
+    }
+    100%{
+        left: 0;
+    }
+}

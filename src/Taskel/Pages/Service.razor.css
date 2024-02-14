@@ -1,0 +1,40 @@
+.service-wrapper{
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    width: 100%;
+    align-self:center;
+    text-align: center;
+    margin-top: 1em;
+}
+.service-upper-wrapper{
+    display: flex;
+    flex-direction: row;
+}
+.service-lower-wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+.service-heading{
+    display: flex;
+    text-align: center;
+    margin: 0;
+}
+.price-tag{
+    margin-left: auto;
+    text-align: center;
+}
+.price-tag h2{
+    margin: 0;
+}
+.submit-button {
+   margin-bottom: 20px;
+   max-width: 250px;
+}
+.label{
+    font-size: small;
+    color: rgb(255, 255, 255);
+    opacity: 50%;
+    margin: 0;
+}

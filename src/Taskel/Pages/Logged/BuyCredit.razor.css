@@ -1,0 +1,27 @@
+﻿input{
+    display: flex;
+    width: auto;
+    height: 40px;
+    border-radius: 10px;
+    background: none;
+    background-color: var(--card-color-normal);
+    color: var(--secondary-color);
+    border: none;
+    outline: none;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: var(--header-and-footer-color);
+    padding: 5px;
+}
+
+button {
+    width: 100%;
+    border: none;
+    max-width: 250px;
+    padding: 10px;
+    background-color: var(--tint-color);
+    color: var(--secondary-color);
+    align-self: center;
+    border-radius: 4px;
+    font-weight: 500;
+}

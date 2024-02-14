@@ -1,0 +1,78 @@
+﻿@page "/service/{ServiceID:int}"
+@using DataAccessLibrary
+@using DataTemplateLibrary
+@using DataTemplateLibrary.Models;
+@using ServerManagement;
+@inject CookieService.CookieManager Cookies;
+@inject ServerManager ServerManager;
+@inject NavigationManager NavManager;
+@inject LoginService.LoginManager LoginManager;
+@inherits ServicePage;
+
+<div class="service-wrapper">
+
+    <div class="service-upper-wrapper">
+        <h1 class="service-heading">@ServiceName</h1>
+        <h2 class="price-tag">@ServicePrice K</h2>
+    </div>
+    <div class="service-lower-wrapper">
+        <p class="label">Description</p>
+
+        <p>@ServiceLongDescription</p>
+            <button class="submit-button" @onclick="buyService">buy service</button>
+
+        @if (WarningText == "not enought credits")
+        {
+            <button class="submit-button" @onclick="buyCredits">buy credits</button>
+        }
+        
+        @if (!string.IsNullOrEmpty(WarningText))
+        {
+            <ErrorBox message=@WarningText />
+        }
+    </div>
+</div>
+
+@code {
+    public string WarningText{ get; set; }
+    private void buyService()
+    {
+        if (!LoginManager.LoggedIn)
+        {
+            NavManager.NavigateTo("/signup");
+        }
+
+        DBTransaction Transaction = new DBTransaction(ServiceOwner, LoginManager.UserID, DateTime.Now, ServicePrice, ServiceID);
+        try
+        {
+            if (ServerManager.CreateTransaction(LoginManager.SessionID, Transaction, ServiceOwner))
+            {
+                WarningText = "thank you for buying!";
+            }
+        } 
+        catch (Exception e)
+        {
+            WarningText = "not enought credits";
+        }
+    }
+
+    private void buyCredits()
+    {
+        NavManager.NavigateTo("/user/credit");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await LoginManager.Fetch();
+        CheckLoggedIn();
+    }
+
+    private void CheckLoggedIn()
+    {
+        //if owner redirects to the edit page
+        if (ServiceOwner == LoginManager.UserID)
+        {
+            NavManager.NavigateTo("/user/edit/" + ServiceID);
+        }
+    }
+}

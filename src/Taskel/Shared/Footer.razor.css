@@ -1,0 +1,29 @@
+﻿.footer {
+    display: flex;
+    bottom: 0;
+    width: 100%;
+    height: var(--footer-height);
+    background-color: var(--header-and-footer-color);
+
+    padding: 0px 10px 0px 10px;
+    align-items: center;
+
+    z-index: 9999;
+}
+.made-by{
+    margin-left: auto;
+}
+.footer p{
+    margin-left: auto;
+    color: gray;
+    font-size: 0.8em;
+    margin: 0;
+    overflow: clip;   
+}
+.footer p a{
+    color: white;
+    text-decoration: none;
+}
+.footer p a:hover{
+    color: lightblue;
+}

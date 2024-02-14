@@ -1,0 +1,63 @@
+﻿@page "/signup"
+@using LoginService;
+@inject LoginManager loginManager;
+@inject NavigationManager NavManager;
+
+<div class="signup-wrapper">
+	<div class="signup-form">
+		<h1>Signup</h1>
+		<input type="text"	   placeholder="Username"		 class="input-field" @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
+		<input type="password" placeholder="Password"		 class="input-field" @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
+		<input type="password" placeholder="Repeat Password" class="input-field" @oninput="@((e) => { passwordInputCheck = ConvertInputToString(e.Value); })" />
+		
+		@if (!string.IsNullOrEmpty(warningText))
+		{
+			<ErrorBox message=@warningText />
+		}
+
+		<button class="submit-button" @onclick="CreateUser">Sign up</button>
+		<p>Allready have an account? <a href="/login">Log in</a>	</p>
+	</div>
+</div>
+
+@code {
+	private string usernameInput = "";
+	private string passwordInput = "";
+	private string passwordInputCheck = "";
+
+	private string warningText = "";
+
+	public void CreateUser()
+	{
+		if (string.IsNullOrEmpty(usernameInput)) 
+		{
+			warningText = "The username field cannot be empty!";
+		}
+		if (string.IsNullOrEmpty(passwordInputCheck)) 
+		{
+			warningText = "The password cannot be empty!";
+			return;
+		}
+		if (passwordInput != passwordInputCheck)
+		{
+			warningText = "The passwords do not match!";
+			return;
+		}
+
+		try {
+			loginManager.Signup(usernameInput, passwordInput);
+		} 
+		catch (LoginSignupException e) {
+			Console.WriteLine(e.Message);
+			warningText = "Encountered an error, please try again later.";
+			return;
+		}
+		NavManager.NavigateTo("/");
+	}
+
+
+	private string ConvertInputToString(object? input)
+	{
+		return input != null ? (string)input : "";
+	}
+}

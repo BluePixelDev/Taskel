@@ -1,0 +1,48 @@
+﻿@page "/user/credit"
+@inject NavigationManager NavManager;
+@inject ServerManagement.ServerManager ServerManager;
+@inject LoginService.LoginManager LoginManager;
+
+
+<h3>buyCredit</h3>
+<br />
+<br />
+<h4>ammount:</h4>
+<input  type="text" @bind="@Ammount" @oninput="@((e) => { try{Ammount=(int)e.Value;}catch(Exception){}})" />
+<br />
+<br />
+<button @onclick = "BuyCredits">buy</button>
+<p style="color:red;">@WarningText</p>
+
+
+@code {
+    public int Ammount = 0;
+    public string WarningText = "";
+
+    private void BuyCredits()
+    {
+        if (Ammount > 10000) {
+            WarningText = "Cant buy more than 10000 credits";
+            return; 
+        }
+        try {
+            ServerManager.BuyCredits(LoginManager.SessionID,Ammount);
+            NavManager.NavigateTo("/");
+        } catch(Exception e) {
+            WarningText = e.Message;
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        CheckLoggedIn();
+    }
+
+    private void CheckLoggedIn()
+    {
+        if (!LoginManager.LoggedIn)
+        {
+            NavManager.NavigateTo("/login");
+        }
+    }
+}

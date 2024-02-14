@@ -1,0 +1,18 @@
+﻿.warning-box {
+    display: flex;
+    align-items: center;
+    background-color: var(--card-color-hover);
+    border-radius: 10px;
+    outline: 2px solid var(--header-and-footer-color);
+    max-height: 3em;
+    padding: 10px;
+    gap: 10px;
+}
+.warning-box-image {
+   height: 100%;
+    background-image: url(../Images/warning-sign-red.png);
+}
+.warning-box p {
+    margin: 0;
+    color: #ed1c24;
+}

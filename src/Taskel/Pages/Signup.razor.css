@@ -1,0 +1,42 @@
+﻿.signup-wrapper{
+    display: flex;
+    justify-content: center;
+}
+.signup-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-width: 500px;
+    justify-content: center;
+    padding: 10px;
+
+    gap: 15px;
+}
+.signup-form h1{
+    text-align: center;
+}
+.input-field{
+    display: flex;
+    width: auto;
+    height: 40px;
+    border-radius: 10px;
+
+    background: none;
+    background-color: var(--card-color-normal);
+    color: var(--secondary-color);
+    border: none;
+
+    outline: none;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: var(--header-and-footer-color);
+
+    padding: 5px;
+}
+.input-field::placeholder{
+    color: rgb(255, 255, 255, 70);
+}
+submit-button {
+    max-width: 250px;
+    align-self: center;
+}

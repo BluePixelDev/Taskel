@@ -1,0 +1,147 @@
+﻿@page "/user/edit/{PageID:int}"
+@using DataAccessLibrary;
+@using DataAccessLibrary.DAOS;
+@using DataTemplateLibrary.Models;
+@using SessionService;
+@inject LoginService.LoginManager LoginManager;
+@inject ServerManagement.ServerManager ServerManager;
+@inject NavigationManager NavManager;
+
+<h2>Statistics</h2>
+<label for="timeframe">select timeframe:</label>
+<select class="select-field" name="timeframe" id="timeframe">
+    <option @onclick = "SetDay">day</option>
+    <option @onclick="SetWeek">week</option>
+    <option @onclick="SetMonth">month</option>
+    <option @onclick="SetYear">year</option>
+</select>
+<h4>number of purchases in time frame: @NumberOfBuys</h4>
+<br/>
+<h4>total number of credits earned: @Money</h4>
+<br/>
+<br/>
+<br/>
+<h2>Edit Service</h2>
+
+<h3>name:</h3>
+<input class="input-field" type="text" @bind="@Name" @oninput="@((e) => { Name=(string)e.Value;})" />
+
+<h3>price:</h3>
+<input class="input-field" type="text" @bind="@Price" @oninput="@((e) => { try {Price=Int32.Parse((string)e.Value + "");}catch(Exception){}})" />
+
+<h3>short:</h3>
+<input class="input-field" type="text" @bind="@Description" @oninput="@((e) => { Description=(string)e.Value;})" />
+
+<h3>long:</h3>
+<textarea class="input-field" type="text" @bind="@DescriptionLong" @oninput="@((e) => { DescriptionLong=(string)e.Value;})" />
+
+<label for="visibility">set visibility:</label>
+<select class="select-field" name="visibility" id="visbility">
+    <option @onclick = "SetVisible">Listed</option>
+    <option @onclick="SetNotVisible">Unlisted</option>
+</select>
+<br />
+<br />
+<button class="login-button" @onclick="SetValues">revert all changes</button>
+<br />
+<br />
+<p style="color: red;">@WarningText</p>
+<button class="login-button" @onclick="EditService">confirm changes</button>
+
+@code {
+    [Parameter]
+    public int PageID { get; set; }
+
+    private String Name { get; set; }
+    private int Price { get; set; }
+    private String Description { get; set; }
+    private string DescriptionLong { get; set; }
+    private bool Listed { get; set; } = true;
+
+    private bool first = true;
+    private DBService service;
+
+    private int NumberOfBuys;
+    private EnumAnaliticsTimeSpan TimeSpan = EnumAnaliticsTimeSpan.Day;
+    private int Money;
+    private string WarningText = "";
+
+    private void EditService()
+    {
+        if (Name.Length < 3)
+        {
+            WarningText = "name is too short (min 3 characters)";
+            return;
+        }
+        if (Name.Length > 20)
+        {
+            WarningText = "name is too long (max 20 characters)";
+            return;
+        }
+        if (Description.Length > 50)
+        {
+            WarningText = "short description is too long (max 50 characters)";
+            return;
+        }
+        if (DescriptionLong.Length > 500)
+        {
+            WarningText = "long descrition is too long (max 500 characters)";
+            return;
+        }
+        if (Price > int.MaxValue)
+        {
+            WarningText = "Price is over the maximum";
+            return;
+        }
+        DBService NewService = new DBService(LoginManager.UserID, Name, Price, ServerManager.GetService(PageID).Created, DateOnly.FromDateTime(DateTime.Now), Listed, Description, DescriptionLong, null, false);
+        ServerManager.UpdateService(LoginManager.SessionID, PageID, NewService);
+        NavManager.NavigateTo("/user");
+
+    }
+
+    private void SetValues()
+    {
+        Name = service.ServiceName;
+        Price = service.CurrentPrice;
+        Description = service.ShortDescription;
+        DescriptionLong = service.LongDescription;
+        Listed = service.IsShown;
+        NumberOfBuys = ServerManager.GetAmountOfBuys(TimeSpan,LoginManager.SessionID,PageID);
+        Money = ServerManager.GetTotalMoneyRecieved(LoginManager.SessionID, PageID);
+        StateHasChanged();
+    }
+
+    private void SetDay() { TimeSpan = EnumAnaliticsTimeSpan.Day;  }
+    private void SetWeek() { TimeSpan = EnumAnaliticsTimeSpan.Week; }
+    private void SetMonth() { TimeSpan = EnumAnaliticsTimeSpan.Month; }
+    private void SetYear() { TimeSpan = EnumAnaliticsTimeSpan.Year; }
+
+    private void SetVisible() { Listed = true; }
+    private void SetNotVisible() { Listed = false; }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        CheckIfOwner();
+    }
+
+    private void CheckIfOwner()
+    {
+        //kickes user if not signed in
+        if (!LoginManager.LoggedIn)
+        {
+            NavManager.NavigateTo("/login");
+        }
+        //kicks if not owner
+        if (LoginManager.UserID != ServerManager.GetService(PageID).UserId)
+        {
+            NavManager.NavigateTo("/login");
+        }
+
+        if (first) {
+            service = ServerManager.GetService(PageID);
+            SetValues();
+            first = false;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+﻿.login-wrapper {
+    display: flex;
+    justify-content: center;
+}
+.login-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-width: 500px;
+    justify-content: center;
+    padding: 10px;
+    gap: 15px;
+}
+.login-form h1 {
+    text-align: center;
+}
+submit-button {
+    max-width: 250px;
+    align-self: center;
+}

@@ -1,0 +1,21 @@
+﻿site-wrapper {
+    font-family: 'Roboto Regular';
+}
+
+.content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--secondary-color);
+    background-color: var(--primary-color);
+    min-height: 100vh;
+    padding: 10px 100px 10px 100px;
+}
+
+@media only screen and (max-width: 780px) {
+    .content-wrapper {
+        padding: 10px 1em 10px 1em;
+    }
+}
