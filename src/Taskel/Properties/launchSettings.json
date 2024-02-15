@@ -11,7 +11,7 @@
     }
   },
   "profiles": {
-    "PraxeFiverrClone": {
+    "Taskel": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
