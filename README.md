@@ -6,7 +6,7 @@ The platform mainly focuses on game developer scene.
 Development team : 
 
     - Frontend & Backend: Ondřej Kačírek
-    - Backend & Database: Anton Kalashnikov
+    - Database & Backend: Anton Kalashnikov
 
 
 # TO DO
