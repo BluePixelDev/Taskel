@@ -7,3 +7,19 @@ Development team :
 
     - Frontend & Backend: Ondřej Kačírek
     - Backend & Database: Anton Kalashnikov
+
+
+# TO DO
+## Backend
+- [ ] Streamline Database Access API
+- [ ] Add private chats
+- [ ] Add service analytics 
+- [ ] Add comments and refactor hard to read code
+- [ ] Improve user Authentication
+
+## Frontend
+- [ ] Add private chats
+- [ ] Add service analytics 
+- [ ] Add landing page
+- [ ] Add comments and refactor hard to read code
+- [ ] Re-design the site
