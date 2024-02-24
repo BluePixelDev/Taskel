@@ -18,9 +18,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-    <ProjectReference Include="..\DataTemplateLibrary\DataTemplateLibrary.csproj" />
-  </ItemGroup>
-
 </Project>

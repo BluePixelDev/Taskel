@@ -16,13 +16,50 @@ namespace DataAccessLibrary.DAOS
     /// <creator>Anton Kalashnikov</creator>
     internal class UsersDAO : AbstractDAO<DBUser>, IDAO<DBUser>
     {
-        private static string table_n = "Users";
-        private String C_CREATE = $"INSERT INTO {table_n} (name, hashedPassword, current_credits, isAdmin) VALUES (@name, @hashedPassword, @current_credits, @isAdmin)";
-        private String C_UPDATE = $"UPDATE {table_n} SET name = @name, hashedPassword = @hashedPassword, current_credits = @current_credits, WHERE id = @id";
-        private String C_READ_ALL = $"SELECT * FROM {table_n}";
-        private String C_READ_BY_ID = $"SELECT * FROM {table_n} WHERE id = @id";
-        private String C_DELETE = $"DELETE FROM {table_n} WHERE id = @id";
-        private String C_GET_BY_NAME = $"SELECT * FROM {table_n} WHERE name = @name";
+        private readonly static string table_n = "Users";
+        private readonly string C_CREATE =
+            $"INSERT INTO " +
+            $"{table_n} " +
+            $"(name, hashedPassword, current_credits, isAdmin) " +
+            $"VALUES " +
+            $"(@name, @hashedPassword, @current_credits, @isAdmin)";
+
+        private readonly string C_UPDATE =
+            $"UPDATE " +
+            $"{table_n} " +
+            $"SET " +
+            $"name = @name, " +
+            $"hashedPassword = @hashedPassword, " +
+            $"current_credits = @current_credits, " +
+            $"WHERE id = @id";
+
+        private readonly string C_READ_ALL = 
+            $"SELECT " +
+            $"* " +
+            $"FROM " +
+            $"{table_n}";
+
+        private readonly string C_READ_BY_ID = 
+            $"SELECT " +
+            $"* " +
+            $"FROM " +
+            $"{table_n} " +
+            $"WHERE " +
+            $"id = @id";
+
+        private readonly string C_DELETE = 
+            $"DELETE FROM " +
+            $"{table_n} " +
+            $"WHERE " +
+            $"id = @id";
+
+        private readonly string C_GET_BY_NAME = 
+            $"SELECT " +
+            $"* " +
+            $"FROM " +
+            $"{table_n} " +
+            $"WHERE " +
+            $"name = @name";
 
         public int Create(DBUser element)
         {
@@ -49,12 +86,12 @@ namespace DataAccessLibrary.DAOS
             Update(C_UPDATE, element, element.ID);
         }
 
-        public DBUser GetByName(string name)
+        public DBUser? GetByName(string name)
         {
-           return GetByName(C_GET_BY_NAME,"@name",name);
+            return GetByName(C_GET_BY_NAME, "@name", name);
         }
 
-        public DBUser GetByName(DBUser element)
+        public DBUser? GetByName(DBUser element)
         {
             return GetByName(element.Name);
         }
@@ -63,27 +100,27 @@ namespace DataAccessLibrary.DAOS
         {
             return new DBUser(
                 Convert.ToInt32(reader[0].ToString()),
-                reader[1].ToString(),
-                reader[2].ToString(),
+                reader[1].ToString() ?? "",
+                reader[2].ToString() ?? "",
                 Convert.ToInt32(reader[3].ToString()),
-                ConvertStringToBool(reader[4].ToString())
+                ConvertStringToBool(reader[4].ToString() ?? "0")
             );
         }
 
         protected override List<MySqlParameter> Map(DBUser obj)
         {
-            return new List<MySqlParameter>()
-            {
-                new MySqlParameter("@name",obj.Name),
-                new MySqlParameter("@hashedPassword",obj.HashedPassword),
-                new MySqlParameter("@current_credits",obj.CurrentCredits),
-                new MySqlParameter("@isAdmin",obj.IsAdmin) 
-            };
+            return
+            [
+                new ("@name",obj.Name),
+                new ("@hashedPassword",obj.HashedPassword),
+                new ("@current_credits",obj.CurrentCredits),
+                new ("@isAdmin",obj.IsAdmin)
+            ];
         }
 
-        private bool ConvertStringToBool(string num)
+        private static bool ConvertStringToBool(string num)
         {
             return (num == "1");
-        } 
+        }
     }
 }

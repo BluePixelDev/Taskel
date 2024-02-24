@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Data.SqlClient;
-using System.Data;
+﻿using System.Data;
 using DataTemplateLibrary.Interfaces;
 using MySql.Data.MySqlClient;
-using System.Runtime.InteropServices;
 
 namespace DataAccessLibrary.DAOS
 {
@@ -16,244 +8,150 @@ namespace DataAccessLibrary.DAOS
     /// This abstract class contains logic for obtaining data from SQL Database
     /// </summary>
     /// <typeparam name="T">A class into which ones save the data from database</typeparam>
-    /// <creator>Anton Kalashnikov</creator>>
+    /// <creator>Anton Kalashnikov</creator>
+    /// <collaborator>Ondrej Kacirek</collaborator>
     internal abstract class AbstractDAO<T> where T : IBaseClass
     {
-        public void Update(String SQL, T obj, int id)
+        public void Update(string SQL, T obj, int id)
         {
-            MySqlConnection? conn = null;
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                var parameters = Map(obj);
+                foreach (var param in parameters)
                 {
-                    conn.Open();
+                    command.Parameters.Add(param);
                 }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    var parameters = Map(obj);
-                    foreach (var param in parameters)
-                    {
-                        command.Parameters.Add(param);
-                    }
-                    command.Parameters.Add(new MySqlParameter("@id", id));
-                    command.ExecuteNonQuery();
-                }
+                command.Parameters.Add(new MySqlParameter("@id", id));
+                command.ExecuteNonQuery();
             }
-            catch (Exception e)
+            catch
             {
                 throw;
             }
         }
-        public int Create(String SQL, T obj)
+        public int Create(string SQL, T obj)
         {
-            MySqlConnection? conn = null;
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                var parameters = Map(obj);
+                foreach (var param in parameters)
                 {
-                    conn.Open();
+                    command.Parameters.Add(param);
                 }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    var parameters = Map(obj);
-                    foreach (var param in parameters)
-                    {
-                        command.Parameters.Add(param);
-                    }
-                    command.ExecuteNonQuery();
-                    command.CommandText = "Select @@Identity";
-                    return Convert.ToInt32(command.ExecuteScalar());
-                }
+                command.ExecuteNonQuery();
+                command.CommandText = "Select @@Identity";
+                return Convert.ToInt32(command.ExecuteScalar());
             }
-            catch (Exception e)
+            catch
             {
                 return -1;
             }
         }
-        public void Delete(String SQL, int id)
+        public static void Delete(string SQL, int id)
         {
-            MySqlConnection? conn = null;
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    command.Parameters.Add(new MySqlParameter("@id", id));
-                    command.ExecuteNonQuery();
-                }
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                command.Parameters.Add(new MySqlParameter("@id", id));
+                command.ExecuteNonQuery();
             }
-            catch (Exception e)
+            catch
             {
                 throw;
             }
         }
-        public List<T> GetAll(String SQL)
+
+        // ==== GET ====
+        public List<T> GetAll(string SQL)
         {
-            MySqlConnection? conn = null;
-            MySqlDataReader? reader = null;
-            List<T> list = new List<T>();
+            List<T> list = [];
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+
+                using MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    conn.Open();
+                    list.Add(Map(reader));
                 }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    using (reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            list.Add(Map(reader));
-                        }
-                    }
-                }
+
             }
-            catch (Exception e)
+            catch
             {
                 return list;
             }
             return list;
         }
-        public List<T> Get(String SQL, List<MySqlParameter> parameters)
+        public List<T> Get(string SQL, List<MySqlParameter> parameters)
         {
-            MySqlConnection? conn = null;
-            MySqlDataReader? reader = null;
-            List<T> list = new List<T>();
+            List<T> list = [];
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                foreach (var param in parameters)
                 {
-                    conn.Open();
+                    command.Parameters.Add(param);
                 }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    foreach (var param in parameters)
-                    {
-                        command.Parameters.Add(param);
-                    }
-                    using (reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            list.Add(Map(reader));
-                        }
 
-                    }
+                using MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(Map(reader));
                 }
             }
-            catch (Exception e)
+            catch
             {
                 return list;
             }
             return list;
         }
-        public T? GetByID(String SQL, int id)
+        public T? GetByID(string SQL, int id)
         {
-            MySqlConnection? conn = null;
-            MySqlDataReader? reader = null;
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    command.Parameters.Add(new MySqlParameter("@id", id));
-                    using (reader = command.ExecuteReader())
-                    {
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                command.Parameters.Add(new MySqlParameter("@id", id));
 
-                        while (reader.Read())
-                        {
-                            return Map(reader);
-                        }
-                    }
+                using MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    return Map(reader);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                return default(T);
+                return default;
             }
-            return default(T);
+            return default;
         }
-        public List<T> GetByConnectingID(String SQL, int id, String tag)
+        public T? GetByName(string SQL, string parameter_name, string name)
         {
-            MySqlConnection? conn = null;
-            MySqlDataReader? reader = null;
-            List<T> list = new List<T>();
             try
             {
-                conn = DBConnectionSingleton.GetInstance();
+                using var command = CreateCommand();
+                command.CommandText = SQL;
+                command.Parameters.Add(new MySqlParameter(parameter_name, name));
 
-                if (conn.State == System.Data.ConnectionState.Closed)
+                using MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    conn.Open();
+                    return Map(reader);
                 }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    command.Parameters.Add(new MySqlParameter(tag, id));
-                    using (reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            list.Add(Map(reader));
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-            return list;
-        }
-        public T GetByName(String SQL, string parameter_name, string name)
-        {
-            MySqlConnection? conn = null;
-            MySqlDataReader? reader = null;
-            try
-            {
-                conn = DBConnectionSingleton.GetInstance();
-                if (conn.State == System.Data.ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
-                using (var command = conn.CreateCommand())
-                {
-                    command.CommandText = SQL;
-                    command.Parameters.Add(new MySqlParameter(parameter_name, name));
-                    using (reader = command.ExecuteReader())
-                    {
 
-                        while (reader.Read())
-                        {
-                            return Map(reader);
-                        }
-                    }
-                }
             }
-            catch (Exception e)
+            catch
             {
-                return default(T);
+                return default;
             }
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -261,12 +159,12 @@ namespace DataAccessLibrary.DAOS
         /// </summary>
         /// <param name="SQLAndParameter">For each sql to be executed add its parameters as a value into a list</param>
         /// <returns>True if transaction was succesfull</returns>
-        public bool TransactionProccess(Dictionary<string, List<MySqlParameter>> SQLAndParameter)
+        public static bool TransactionProccess(Dictionary<string, List<MySqlParameter>> SQLAndParameter)
         {
             MySqlConnection? conn = null;
-            MySqlCommand? command = new MySqlCommand();
+            MySqlCommand? command = new();
             MySqlTransaction transaction;
-            conn = DBConnectionSingleton.GetInstance();
+            conn = DBConnectionSingleton.Instance.GetConnection();
             if (conn.State == ConnectionState.Closed) conn.Open();
             transaction = conn.BeginTransaction();
             command.Connection = conn;
@@ -292,11 +190,11 @@ namespace DataAccessLibrary.DAOS
             }
         }
 
-        internal int GetCount(string SQL, List<MySqlParameter> parameters)
+        internal static int GetCount(string SQL, List<MySqlParameter> parameters)
         {
             MySqlConnection? conn = null;
             MySqlCommand command;
-            conn = DBConnectionSingleton.GetInstance();
+            conn = DBConnectionSingleton.Instance.GetConnection();
             if (conn.State == ConnectionState.Closed) conn.Open();
             MySqlDataReader? reader = null;
             using (command = conn.CreateCommand())
@@ -314,7 +212,8 @@ namespace DataAccessLibrary.DAOS
                     try
                     {
                         count = Convert.ToInt32(reader[0]);
-                    } catch (InvalidCastException e)
+                    }
+                    catch (InvalidCastException e)
                     {
                         count = 0;
                     }
@@ -323,7 +222,7 @@ namespace DataAccessLibrary.DAOS
             }
         }
 
-        protected string SetSQLUpdate(List<string> atributes, string table_n)
+        protected static string SetSQLUpdate(List<string> atributes, string table_n)
         {
             string updateSql = $"UPDATE {table_n} SET ";
             string last = atributes.Last();
@@ -342,7 +241,7 @@ namespace DataAccessLibrary.DAOS
             return updateSql;
         }
 
-        protected string SetSQLCreate(List<string> atributes, string table_n)
+        protected static string SetSQLCreate(List<string> atributes, string table_n)
         {
             string createSql = $"INSERT INTO {table_n} ";
             createSql += "(";
@@ -374,10 +273,24 @@ namespace DataAccessLibrary.DAOS
             return createSql;
         }
 
-
-
         protected abstract T Map(MySqlDataReader reader);
         protected abstract List<MySqlParameter> Map(T obj);
+
+        //==== UTILITY ====
+
+        /// <summary>
+        /// Checks if connection to Database is open, if not it i'll open the connection.
+        /// </summary>
+        /// <returns>Created MysqlCommand</returns>
+        protected static MySqlCommand CreateCommand()
+        {
+            MySqlConnection? conn = DBConnectionSingleton.Instance.GetConnection();
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+            return conn.CreateCommand();
+        }
     }
 
 }

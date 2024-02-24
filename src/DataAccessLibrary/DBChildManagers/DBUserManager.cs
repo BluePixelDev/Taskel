@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataTemplateLibrary.Models;
+﻿using DataTemplateLibrary.Models;
 using DataAccessLibrary.DAOS;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Security;
-using System.Linq.Expressions;
 
 namespace DataAccessLibrary.DBChildManagers
 {
@@ -18,9 +12,9 @@ namespace DataAccessLibrary.DBChildManagers
     /// <Creator>Anton Kalashnikov</Creator>
     public class DBUserManager
     {
-        UsersDAO usersDAO = new UsersDAO();
+        private readonly UsersDAO usersDAO = new();
 
-        public ReturnData<DBUser?, string> SingUpUser(DBUser user)
+        public ReturnData<DBUser?, string> RegisterUser(DBUser user)
         {
             if (usersDAO.GetByName(user) != null) throw new Exception("User already exists in the database");
             int id = usersDAO.Create(user);
@@ -30,15 +24,7 @@ namespace DataAccessLibrary.DBChildManagers
 
         public DBUser? GetUserByName(string name)
         {
-            DBUser returned = usersDAO.GetByName(name);
-            try
-            {
-                if (returned.ID < 0);
-            } catch (NullReferenceException e)
-            {
-                throw new Exception("User wasnt found in the database");
-            }
-            return returned;
+            return usersDAO.GetByName(name);
         }
 
         public void RemoveUser(int userId)
@@ -60,7 +46,8 @@ namespace DataAccessLibrary.DBChildManagers
             try
             {
                 return usersDAO.GetByID(userId);
-            } catch (MySqlException e)
+            }
+            catch (MySqlException e)
             {
                 Console.WriteLine(e.Message);
                 return null;

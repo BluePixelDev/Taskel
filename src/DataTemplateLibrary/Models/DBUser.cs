@@ -3,7 +3,7 @@
 namespace DataTemplateLibrary.Models
 {
     /// <summary>
-    /// Data model for objects from database.
+    /// Data model for user objects from database.
     /// </summary>
     /// <creator>Anton Kalashniko</creator>
     public class DBUser : IBaseClass
@@ -16,36 +16,36 @@ namespace DataTemplateLibrary.Models
 
         public DBUser(string name, string hashedPassword, int currentCredits)
         {
-            Name = name;
-            HashedPassword = hashedPassword;
-            CurrentCredits = currentCredits;
+            this.name = name;
+            this.hashedPassword = hashedPassword;
+            this.currentCredits = currentCredits;
         }
 
         public DBUser(int ID, string name, string hashedPassword, int currentCredits)
         {
             this.ID = ID;
-            Name = name;
-            HashedPassword = hashedPassword;
-            CurrentCredits = currentCredits;
+            this.name = name;
+            this.hashedPassword = hashedPassword;
+            this.currentCredits = currentCredits;
         }
 
         public DBUser(string name, string hashedPassword)
         {
-            Name = name;
-            HashedPassword = hashedPassword;
-            CurrentCredits = 0;
+            this.name = name;
+            this.hashedPassword = hashedPassword;
+            currentCredits = 0;
         }
 
-        public DBUser(int iD, string name, string hashedPassword, int currentCredits, bool isAdmin)
+        public DBUser(int id, string name, string hashedPassword, int currentCredits, bool isAdmin)
         {
-            ID = iD;
-            Name = name;
-            HashedPassword = hashedPassword;
-            CurrentCredits = currentCredits;
-            IsAdmin = isAdmin;
+            this.id = id;
+            this.name = name;
+            this.hashedPassword = hashedPassword;
+            this.currentCredits = currentCredits;
+            this.isAdmin = isAdmin;
         }
 
-        public int ID { get { return id; } set { this.id = value; } }
+        public int ID { get => id; set => id = value; }
         public string Name { get => name; set => name = value; }
         public string HashedPassword { get => hashedPassword; set => hashedPassword = value; }
         public int CurrentCredits { get => currentCredits; set => currentCredits = value; }

@@ -1,6 +1,12 @@
 ﻿.login-wrapper {
+    position: absolute;
     display: flex;
+    top: 50%;
+    left: 50%;
     justify-content: center;
+    transform: translate(-50%, -50%);
+    max-width: 400px;
+    width: 100vw;
 }
 .login-form {
     display: flex;
@@ -14,7 +20,7 @@
 .login-form h1 {
     text-align: center;
 }
-submit-button {
+.submit-button {
     max-width: 250px;
     align-self: center;
 }

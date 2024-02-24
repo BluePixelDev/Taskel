@@ -21,7 +21,7 @@ namespace Tests
             DBUser user = new DBUser(name,pass,0);
             DBUserManager manager = new DBUserManager();
             // Act
-            manager.SingUpUser(user);
+            manager.RegisterUser(user);
             DBUser taken_user = manager.GetUserByName(user.Name);
             manager.RemoveUser(taken_user.ID);
             // Assert

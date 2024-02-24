@@ -11,13 +11,4 @@
     <PackageReference Include="MySqlConnector" Version="2.3.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-    <ProjectReference Include="..\DataTemplateLibrary\DataTemplateLibrary.csproj" />
-  </ItemGroup>
-
 </Project>

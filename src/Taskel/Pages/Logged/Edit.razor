@@ -1,19 +1,10 @@
 ﻿@page "/user/edit/{PageID:int}"
-@using DataAccessLibrary;
-@using DataAccessLibrary.DAOS;
-@using DataTemplateLibrary.Models;
-@using SessionService;
-@inject LoginService.LoginManager LoginManager;
-@inject ServerManagement.ServerManager ServerManager;
+
 @inject NavigationManager NavManager;
 
 <h2>Statistics</h2>
 <label for="timeframe">select timeframe:</label>
 <select class="select-field" name="timeframe" id="timeframe">
-    <option @onclick = "SetDay">day</option>
-    <option @onclick="SetWeek">week</option>
-    <option @onclick="SetMonth">month</option>
-    <option @onclick="SetYear">year</option>
 </select>
 <h4>number of purchases in time frame: @NumberOfBuys</h4>
 <br/>
@@ -59,10 +50,8 @@
     private bool Listed { get; set; } = true;
 
     private bool first = true;
-    private DBService service;
 
     private int NumberOfBuys;
-    private EnumAnaliticsTimeSpan TimeSpan = EnumAnaliticsTimeSpan.Day;
     private int Money;
     private string WarningText = "";
 
@@ -93,28 +82,14 @@
             WarningText = "Price is over the maximum";
             return;
         }
-        DBService NewService = new DBService(LoginManager.UserID, Name, Price, ServerManager.GetService(PageID).Created, DateOnly.FromDateTime(DateTime.Now), Listed, Description, DescriptionLong, null, false);
-        ServerManager.UpdateService(LoginManager.SessionID, PageID, NewService);
         NavManager.NavigateTo("/user");
 
     }
 
     private void SetValues()
     {
-        Name = service.ServiceName;
-        Price = service.CurrentPrice;
-        Description = service.ShortDescription;
-        DescriptionLong = service.LongDescription;
-        Listed = service.IsShown;
-        NumberOfBuys = ServerManager.GetAmountOfBuys(TimeSpan,LoginManager.SessionID,PageID);
-        Money = ServerManager.GetTotalMoneyRecieved(LoginManager.SessionID, PageID);
         StateHasChanged();
     }
-
-    private void SetDay() { TimeSpan = EnumAnaliticsTimeSpan.Day;  }
-    private void SetWeek() { TimeSpan = EnumAnaliticsTimeSpan.Week; }
-    private void SetMonth() { TimeSpan = EnumAnaliticsTimeSpan.Month; }
-    private void SetYear() { TimeSpan = EnumAnaliticsTimeSpan.Year; }
 
     private void SetVisible() { Listed = true; }
     private void SetNotVisible() { Listed = false; }
@@ -127,21 +102,6 @@
 
     private void CheckIfOwner()
     {
-        //kickes user if not signed in
-        if (!LoginManager.LoggedIn)
-        {
-            NavManager.NavigateTo("/login");
-        }
-        //kicks if not owner
-        if (LoginManager.UserID != ServerManager.GetService(PageID).UserId)
-        {
-            NavManager.NavigateTo("/login");
-        }
-
-        if (first) {
-            service = ServerManager.GetService(PageID);
-            SetValues();
-            first = false;
-        }
+       
     }
 }

@@ -1,7 +1,6 @@
 ﻿@page "/user/credit"
+
 @inject NavigationManager NavManager;
-@inject ServerManagement.ServerManager ServerManager;
-@inject LoginService.LoginManager LoginManager;
 
 
 <h3>buyCredit</h3>
@@ -26,7 +25,7 @@
             return; 
         }
         try {
-            ServerManager.BuyCredits(LoginManager.SessionID,Ammount);
+            
             NavManager.NavigateTo("/");
         } catch(Exception e) {
             WarningText = e.Message;
@@ -40,9 +39,6 @@
 
     private void CheckLoggedIn()
     {
-        if (!LoginManager.LoggedIn)
-        {
-            NavManager.NavigateTo("/login");
-        }
+       
     }
 }

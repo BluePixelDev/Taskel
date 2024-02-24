@@ -1,6 +1,12 @@
-﻿.signup-wrapper{
+﻿.signup-wrapper {
+    position: absolute;
     display: flex;
+    top: 50%;
+    left: 50%;
     justify-content: center;
+    transform: translate(-50%, -50%);
+    max-width: 400px;
+    width: 100vw;
 }
 .signup-form {
     display: flex;
@@ -15,28 +21,11 @@
 .signup-form h1{
     text-align: center;
 }
-.input-field{
-    display: flex;
-    width: auto;
-    height: 40px;
-    border-radius: 10px;
 
-    background: none;
-    background-color: var(--card-color-normal);
-    color: var(--secondary-color);
-    border: none;
-
-    outline: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: var(--header-and-footer-color);
-
-    padding: 5px;
-}
 .input-field::placeholder{
     color: rgb(255, 255, 255, 70);
 }
-submit-button {
+.submit-button {
     max-width: 250px;
     align-self: center;
 }

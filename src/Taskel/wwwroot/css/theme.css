@@ -1,0 +1,56 @@
+﻿:root {
+    --background-color: #393939;
+    --primary-color: #222226;
+    --secondary-color: #eeeeee;
+    --tint-color: #2AB047;
+    --header-height: 60px;
+    --footer-height: 35px;
+    --header-and-footer-color: #393939;
+    --card-color-normal: #2c2c30;
+    --card-color-hover: #343438;
+}
+
+html, body {   
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+body {
+    background-color: var(--primary-color);
+}
+
+a, .btn-link {
+    color: #0071c1;
+}
+
+/* SHARED CSS ELEMENT STYLES */
+.submit-button {
+    display: block;
+    width: 100%;
+    border: none;
+    padding: 10px;
+    background-color: var(--tint-color);
+    color: white;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.input-field {
+    display: flex;
+    width: auto;
+    height: 40px;
+    border-radius: 10px;
+    background: none;
+    background-color: var(--card-color-normal);
+    color: var(--secondary-color);
+    border: none;
+    outline: none;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: var(--header-and-footer-color);
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+    .input-field::placeholder {
+        color: rgb(255, 255, 255, 70);
+    }

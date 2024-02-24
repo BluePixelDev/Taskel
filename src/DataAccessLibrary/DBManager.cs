@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccessLibrary.DAOS;
-using DataAccessLibrary.DBChildManagers;
+﻿using DataAccessLibrary.DBChildManagers;
 using DataTemplateLibrary.Models;
-using Org.BouncyCastle.Asn1.Crmf;
-using Org.BouncyCastle.Security;
 
 namespace DataAccessLibrary
 {
@@ -15,6 +7,7 @@ namespace DataAccessLibrary
     /// Cascade class for working with database and Session Service
     /// </summary>
     /// <creator>Anton Kalashnikov</creator>
+    /// <colaborator>Ondrej Kacirek</colaborator>
     public class DBManager
     {
         private static DBManager? instance = null;
@@ -26,16 +19,8 @@ namespace DataAccessLibrary
 
         public static DBManager GetInstance()
         {
-            if (instance == null)
-            {
-                instance = new DBManager();
-            }
+            instance ??= new DBManager();
             return instance;
-        }
-
-        public DBUser GetUserByName(string name)
-        {
-            return userManager.GetUserByName(name);
         }
         
         public bool ServiceExists(int serviceId)
@@ -46,41 +31,6 @@ namespace DataAccessLibrary
         public bool UserOwnsService(int userId, int serviceId)
         {
             return (serviceManager.GetOneServiceByUserIdAndServiceId(userId,serviceId) != null);
-        }
-
-        /// <summary>
-        /// Saves user to database and creates and retrievs his id
-        /// </summary>
-        /// <param name="user">User to save</param>
-        /// <returns>Original user with updated id</returns>
-        public DBUser? SingUpUser(DBUser user)
-        {
-            var data = userManager.SingUpUser(user);
-            if (data != null) return data.Result;
-            else throw new Exception(data.Message);
-        }
-
-        /// <summary>
-        /// Reads database and returns a user with specific name
-        /// </summary>
-        /// <param name="name">Name of the user you want to read</param>
-        /// <returns>User from database with the specified name</returns>
-        public DBUser? ReadUserByName(string name)
-        {
-            return userManager.GetUserByName(name);
-        }
-
-        /// <summary>
-        /// Check if user exists in the database and credentials
-        /// </summary>
-        /// <param name="user">Hypothetical user to check he exists in the database and if password is same</param>
-        /// <returns>True in result if user exists and credentials are right, User from database.</returns>
-        public DBUser? LogUserIn(DBUser user)
-        {
-            var data = userManager.LogUserIn(user);
-            var user_from_db = data;
-            if (user_from_db == null) throw new NullReferenceException("User doesnt exist in the database");
-            return user_from_db;
         }
 
         /// <summary>
@@ -95,11 +45,6 @@ namespace DataAccessLibrary
             return serviceManager.CreateService(service).Result;
         }
 
-        public DBService? GetServiceFromDB(int userId, int serviceId)
-        {
-            return serviceManager.GetOneServiceByUserIdAndServiceId(userId, serviceId);
-        }
-
         public DBService? GetServiceFromDB(int serviceId)
         {
             return serviceManager.GetService(serviceId);
@@ -111,19 +56,9 @@ namespace DataAccessLibrary
             serviceManager.UpdateService(serviceId, updatedService);
         }
 
-        public List<DBService?> GetAllUserServices(int userId)
-        {
-            return serviceManager.GetAllServiceByUser(userId);
-        }
-
         public bool CreateTransaction(DBTransaction transaction, int senderId, int recieverId, int amount)
         {
             return transManager.CreateTransaction(transaction, senderId, recieverId, amount);
-        }
-
-        public List<DBTransaction> ReadTransactionsByUserId(int userId)
-        {
-            return transManager.ReadTransactionsByUserId(userId);
         }
 
         public List<DBTransaction> ReadTransactionsByServiceId(int serviceId)
@@ -139,11 +74,6 @@ namespace DataAccessLibrary
         public DBUser GetUser(int userId)
         {
             return userManager.GetUserById(userId);
-        }
-
-        public void UpdateUser(int userId, DBUser newUserData)
-        {
-            userManager.UpdateUser(userId, newUserData);
         }
 
         public List<DBService?> GetAllServices()

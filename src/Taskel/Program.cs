@@ -1,6 +1,5 @@
-using CookieService;
-using LoginService;
-using ServerManagement;
+using Taskel.Services;
+using Taskel.Services.Authorization;
 
 namespace Taskel
 {
@@ -13,11 +12,11 @@ namespace Taskel
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<ServerManager>();
-            builder.Services.AddScoped<CookieManager>();
-            builder.Services.AddScoped<LoginManager>();
+
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<SessionService>();
             var app = builder.Build();
-            
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

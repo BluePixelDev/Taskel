@@ -1,10 +1,4 @@
-﻿@using ServerManagement;
-@using DataTemplateLibrary.Models;
-@using LoginService;
-@inject ServerManager serverManager;
-@inject LoginManager loginManger;
-
-<div class="header">
+﻿<div class="header">
 
     <a class="logo" href="/"></a>
     <div class="navigation">
@@ -70,27 +64,12 @@
 
     protected override void OnInitialized()
     {
-        if (loginManger != null)
-        {
-            loginManger.OnUpdate += () =>
-            {
-                isLoggedIn = loginManger.LoggedIn;
-                DBUser? user = serverManager.GetUserById(loginManger.UserID);
-
-                if (user != null)
-                {
-                    userCredits = user.CurrentCredits;
-                }
-
-                StateHasChanged();
-            };
-
-        }
+       
     }
 
     private void Logout()
     {
-        loginManger?.Logout();
+        
     }
 
     private void ToggleMenu()

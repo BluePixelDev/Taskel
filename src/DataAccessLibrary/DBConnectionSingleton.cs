@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data.SqlClient;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 
 namespace DataAccessLibrary
 {
@@ -10,44 +8,43 @@ namespace DataAccessLibrary
     /// <creator>Anton Kalashnikov</creator>
     public class DBConnectionSingleton
     {
-        private static DBConnectionSingleton instance = new DBConnectionSingleton();
-        private static MySqlConnection? conn = null;
-        private DBConnectionSingleton()
+        private static readonly DBConnectionSingleton instance = new();
+        public static DBConnectionSingleton Instance { get => instance; }
+
+        private MySqlConnection? connection = null;
+
+        public string ConnectionString { get; set; } = "";
+
+        private DBConnectionSingleton() { }
+        public MySqlConnection GetConnection()
         {
-        }
-        public static MySqlConnection GetInstance()
-        {
-            if (conn != null)
+            if (connection != null)
             {
-                if (conn.State == System.Data.ConnectionState.Open) conn.Close();
+                //Closes connection if it is open.
+                if (connection.State == System.Data.ConnectionState.Open) 
+                    connection.Close();
             }
+            else
+            {
+                //Creates new connection if there is none.
+                connection = CreateConnection();
+            }
+            return connection;
+        }
+
+        public MySqlConnection CreateConnection()
+        {
+            MySqlConnection connection = new(ConnectionString);
             try
             {
-                if (conn == null)
-                {
-                    // TODO: Find a way to fix App.config reading
-                    SqlConnectionStringBuilder consStringBuilder = new SqlConnectionStringBuilder();
-                    consStringBuilder.UserID = "ppraxe";
-                    consStringBuilder.Password = "Ppraxe+01";
-                    consStringBuilder.InitialCatalog = "praxedb";
-                    consStringBuilder.DataSource = "93.99.225.235";
-                    consStringBuilder.ConnectTimeout = 10;
-                    conn = new MySqlConnection(consStringBuilder.ConnectionString);
-                    conn.Open();
-                }
-            }
-            catch (Exception e)
+                connection.Open();
+            }catch (Exception ex)
             {
-                throw new Exception($"Wasn`t able to connect to database, try again later or call an administrator ERR: {e.Message}");
+                Console.WriteLine(ex.Message);
             }
-            return conn;
-        }
-        private static string ReadSetting(string key)
-        {
-            var appSettings = ConfigurationManager.AppSettings;
-            string result = appSettings[key] ?? "Not Found";
-            return result;
-        }
+           
+            return connection;
+        }     
     }
 
 }
