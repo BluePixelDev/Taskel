@@ -4,6 +4,7 @@
     --background-color: #222226;
     --tint-color: #2AB047;
     --header-color: #393939;
+    --header-color-highlight: #4d4d4d;
     --footer-color: #393939;
     --header-height: 60px;
     --footer-height: 35px;
@@ -12,7 +13,7 @@
 }
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Poppins ExtraBold';
 }
 
 body {
@@ -55,4 +56,8 @@ a, .btn-link {
 
     .input-field::placeholder {
         color: rgb(255, 255, 255, 70);
+    }
+
+    h1 {
+        outline: none;
     }
