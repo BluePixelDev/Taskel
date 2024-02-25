@@ -3,7 +3,7 @@
     bottom: 0;
     width: 100%;
     height: var(--footer-height);
-    background-color: var(--header-and-footer-color);
+    background-color: var(--footer-color);
 
     padding: 0px 10px 0px 10px;
     align-items: center;

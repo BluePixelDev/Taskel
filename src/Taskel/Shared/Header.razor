@@ -1,75 +1,106 @@
 ﻿<div class="header">
 
-    <a class="logo" href="/"></a>
-    <div class="navigation">
-        
-        <a href="/">
-            Home
-        </a>
+    <div class="header-top">
+        <a class="logo" href="/"></a>
+        <div class="navigation">
 
-        @if (!isLoggedIn)
-        {
-            <a href="/signup" class="header-register">
-                Sign Up
+            <a href="/">
+                Home
             </a>
-        }
-        else
-        {
-            <a href="/user" class="header-register">
-                Dashboard
-            </a>
-            <button class="header-logout" @onclick=Logout>
-                Log out
-            </button>
 
-            <p class="header-credits">
-                @userCredits K
-            </p>
-        }
+            @if (!isLoggedIn)
+            {
+                <a href="/signup" class="header-register">
+                    Sign Up
+                </a>
+            }
+            else
+            {
+                <a href="/user" class="header-register">
+                    Dashboard
+                </a>
+                <button class="header-logout" @onclick=Logout>
+                    Log out
+                </button>
+
+                <p class="header-credits">
+                    @userCredits K
+                </p>
+            }
+        </div>
+
+        <div class="mobile-navigation @GetMenuClass()">
+            <a href="/" @onclick=ToggleMenu>
+                Home
+            </a>
+
+            @if (!isLoggedIn)
+            {
+
+                <a href="/signup" class="header-register" @onclick=ToggleMenu>
+                    Sign Up
+                </a>
+            }
+            else
+            {
+                <a href="/user" class="header-register" @onclick=ToggleMenu>
+                    Dashboard
+                </a>
+            }
+        </div>
+
+        <button class="hamburger @GetMenuClass()" @onclick="ToggleMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
 
-    <div class="mobile-navigation @GetMenuClass()">
-        <a href="/" @onclick=ToggleMenu>
-            Home
-        </a>
+    @if (!hideCategories)
+    {
+        <div class="header-bottom">
+            <div class="categories">
+                <div class="service-category">
+                    <img class="service-category-icon" src="/Images/Icons/Texture_Icon.png" />
+                    <p>Testing Text</p>
+                </div>
 
-        @if (!isLoggedIn)
-        {
+                <div class="service-category">
+                    <div class="service-category-icon"></div>
+                    <p>Testing Text</p>
+                </div>
 
-            <a href="/signup" class="header-register" @onclick=ToggleMenu>
-                Sign Up
-            </a>
-        }
-        else
-        {
-            <a href="/user" class="header-register" @onclick=ToggleMenu>
-                Dashboard
-            </a>
-        }
-    </div>
+                <div class="service-category">
+                    <div class="service-category-icon"></div>
+                    <p>Testing Text</p>
+                </div>
 
-    <button class="hamburger @GetMenuClass()" @onclick="ToggleMenu">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
+                <div class="service-category">
+                    <div class="service-category-icon"></div>
+                    <p>Testing Text</p>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
 <div class="header-space"></div>
 
 @code {
+    [Parameter] public bool hideCategories { get; set; }
+
     private bool isMenuShown;
     private bool isLoggedIn;
     private int userCredits = 0;
 
     protected override void OnInitialized()
     {
-       
+
     }
 
     private void Logout()
     {
-        
+
     }
 
     private void ToggleMenu()
