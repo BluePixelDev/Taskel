@@ -1,18 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject>Taskel.Program</StartupObject>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MySqlConnector" Version="2.3.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TaskelDB\TaskelDB.csproj" />
   </ItemGroup>
 
 </Project>

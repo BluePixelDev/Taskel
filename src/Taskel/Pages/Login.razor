@@ -2,6 +2,7 @@
 @using Taskel.Services;
 @using Taskel.Shared.Layouts;
 @using Taskel.Services.Authorization;
+@using Taskel.Services.Authorization.Exceptions;
 
 @layout ClearLayout;
 @inject AuthService authService;
@@ -11,10 +12,10 @@
     <div class="login-form">
         <h1>Login</h1>
         <input type="text"
-               placeholder="Username"
+               placeholder="Email"
                class="input-field"
-               @bind="@usernameInput"
-               @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
+               @bind="@emailInput"
+               @oninput="@((e) => { emailInput = ConvertInputToString(e.Value); })" />
 
         <input type="password"
                placeholder="Password"
@@ -33,7 +34,7 @@
 </div>
 
 @code {
-    private string usernameInput = "";
+    private string emailInput = "";
     private string passwordInput = "";
     private string warningText = "";
 
@@ -41,7 +42,7 @@
     {
         try
         {
-            if (authService.Login(usernameInput, passwordInput))
+            if (authService.Login(emailInput, passwordInput))
             {
                 NavManager.NavigateTo("/");
             }
@@ -50,7 +51,7 @@
         {
             switch (e.ExceptionType)
             {
-                case AuthLoginExceptionType.NotFound:
+                case AuthLoginExceptionType.EmailNotFound | AuthLoginExceptionType.UserNotFound:
                     warningText = "Could not found an account with matching credentials.";
                     break;
                 case AuthLoginExceptionType.CredentialsMismatch:

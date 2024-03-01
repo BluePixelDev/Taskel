@@ -1,7 +1,10 @@
 ﻿@page "/signup"
 @using Taskel.Shared.Layouts;
+@using Taskel.Services.Authorization;
+@using Taskel.Services.Authorization.Exceptions;
 
 @layout ClearLayout;
+@inject AuthService authService;
 @inject NavigationManager NavManager;
 
 <div class="signup-wrapper">
@@ -11,6 +14,11 @@
                placeholder="Username"
                class="input-field"
                @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
+
+        <input type="text"
+               placeholder="Email"
+               class="input-field"
+               @oninput="@((e) => { emailInput = ConvertInputToString(e.Value); })" />
 
         <input type="password"
                placeholder="Password"
@@ -34,6 +42,7 @@
 
 @code {
     private string usernameInput = "";
+    private string emailInput = "";
     private string passwordInput = "";
     private string passwordInputCheck = "";
 
@@ -56,7 +65,22 @@
             return;
         }
 
-        NavManager.NavigateTo("/");
+        try
+        {
+            if (authService.Register(usernameInput, emailInput, passwordInput))
+            {
+                NavManager.NavigateTo("/");
+            }
+        }
+        catch (AuthRegisterException e)
+        {
+            switch (e.ExceptionType)
+            {
+                case AuthRegisterExceptionType.UserAlreadyExists:
+                    warningText = "User with the same email already exists!";
+                    break;
+            }
+        }
     }
 
 

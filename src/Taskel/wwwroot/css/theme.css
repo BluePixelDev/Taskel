@@ -48,7 +48,7 @@ a, .btn-link {
     outline: none;
     outline-width: 2px;
     outline-style: solid;
-    outline-color: var(--header-and-footer-color);
+    outline-color: #17171a;
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
@@ -58,6 +58,6 @@ a, .btn-link {
         color: rgb(255, 255, 255, 70);
     }
 
-    h1 {
-        outline: none;
-    }
+h1 {
+    outline: none;
+}
