@@ -1,16 +1,8 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('theme.css');
+@import url('fonts.css');
+@import url('styles.css');
 
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-h1:focus {
-    outline: none;
-}
-
-a, .btn-link {
-    color: #0071c1;
-}
 
 .btn-primary {
     color: #fff;
@@ -62,61 +54,3 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
-
-/*SHARED FONTS*/
-@font-face {
-    font-family: "Roboto Regular";
-    src: url("../Fonts/Roboto/Roboto-Regular.ttf") format("truetype");
-}
-
-@font-face {
-    font-family: "Roboto Medium";
-    src: url("../Fonts/Roboto/Roboto-Medium.ttf") format("truetype");
-}
-
-@font-face {
-    font-family: "Roboto Bold";
-    src: url("../Fonts/Roboto/Roboto-Bold.ttf") format("truetype");
-}
-
-/*THEME COLORS*/
-:root {
-    --primary-color: #222226;
-    --secondary-color: #eeeeee;
-    --tint-color: #32aacf;
-    --header-height: 50px;
-    --footer-height: 35px;
-    --header-and-footer-color: #141418;
-    --card-color-normal: #2c2c30;
-    --card-color-hover: #343438;
-}
-
-/*SHARED CSS ELEMNT STYLES*/
-.submit-button {
-    display: block;
-    width: 100%;
-    border: none;
-    padding: 10px;
-    background-color: var(--tint-color);
-    color: var(--secondary-color);
-    border-radius: 4px;
-    font-weight: 500;
-}
-.input-field {
-    display: flex;
-    width: auto;
-    height: 40px;
-    border-radius: 10px;
-    background: none;
-    background-color: var(--card-color-normal);
-    color: var(--secondary-color);
-    border: none;
-    outline: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: var(--header-and-footer-color);
-    padding: 5px;
-}
-.input-field::placeholder {
-    color: rgb(255, 255, 255, 70);
-}

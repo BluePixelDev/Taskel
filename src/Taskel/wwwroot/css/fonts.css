@@ -1,0 +1,19 @@
+﻿@font-face {
+    font-family: "Roboto Regular";
+    src: url("../Fonts/Roboto/Roboto-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Roboto Medium";
+    src: url("../Fonts/Roboto/Roboto-Medium.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Roboto Bold";
+    src: url("../Fonts/Roboto/Roboto-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Poppins ExtraBold";
+    src: url("../Fonts/Poppins/Poppins-ExtraBold.ttf") format("truetype");
+}

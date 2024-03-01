@@ -3,12 +3,12 @@
     bottom: 0;
     width: 100%;
     height: var(--footer-height);
-    background-color: var(--header-and-footer-color);
+    background-color: var(--footer-color);
 
     padding: 0px 10px 0px 10px;
     align-items: center;
 
-    z-index: 9999;
+    z-index: 1;
 }
 .made-by{
     margin-left: auto;

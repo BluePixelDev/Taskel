@@ -4,12 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taskel", "Taskel\Taskel.csproj", "{A924CF7C-5C37-4807-8EEE-7F8DBB8F3D9E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6CCF3F49-B87F-4298-92B2-B49ED213A2BA} = {6CCF3F49-B87F-4298-92B2-B49ED213A2BA}
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{0847DB73-604C-487C-985D-ED59FFA198E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskelDB", "TaskelDB\TaskelDB.csproj", "{6CCF3F49-B87F-4298-92B2-B49ED213A2BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "DBMSTest\Tests.csproj", "{CE349068-A818-4E25-B47F-98414C08C93E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTemplateLibrary", "DataTemplateLibrary\DataTemplateLibrary.csproj", "{27C62942-7FCC-4DB1-AAC9-8D8BEDC8B9BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskelDBTests", "TaskelDBTests\TaskelDBTests.csproj", "{EDC0A28A-D1FE-405D-8BEC-1DECBCFF3EF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +22,14 @@ Global
 		{A924CF7C-5C37-4807-8EEE-7F8DBB8F3D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A924CF7C-5C37-4807-8EEE-7F8DBB8F3D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A924CF7C-5C37-4807-8EEE-7F8DBB8F3D9E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0847DB73-604C-487C-985D-ED59FFA198E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0847DB73-604C-487C-985D-ED59FFA198E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0847DB73-604C-487C-985D-ED59FFA198E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0847DB73-604C-487C-985D-ED59FFA198E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE349068-A818-4E25-B47F-98414C08C93E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE349068-A818-4E25-B47F-98414C08C93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE349068-A818-4E25-B47F-98414C08C93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE349068-A818-4E25-B47F-98414C08C93E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27C62942-7FCC-4DB1-AAC9-8D8BEDC8B9BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{27C62942-7FCC-4DB1-AAC9-8D8BEDC8B9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27C62942-7FCC-4DB1-AAC9-8D8BEDC8B9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{27C62942-7FCC-4DB1-AAC9-8D8BEDC8B9BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CCF3F49-B87F-4298-92B2-B49ED213A2BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CCF3F49-B87F-4298-92B2-B49ED213A2BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CCF3F49-B87F-4298-92B2-B49ED213A2BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CCF3F49-B87F-4298-92B2-B49ED213A2BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDC0A28A-D1FE-405D-8BEC-1DECBCFF3EF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDC0A28A-D1FE-405D-8BEC-1DECBCFF3EF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDC0A28A-D1FE-405D-8BEC-1DECBCFF3EF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDC0A28A-D1FE-405D-8BEC-1DECBCFF3EF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

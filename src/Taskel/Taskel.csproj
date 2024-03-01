@@ -12,12 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-    <ProjectReference Include="..\DataTemplateLibrary\DataTemplateLibrary.csproj" />
+    <ProjectReference Include="..\TaskelDB\TaskelDB.csproj" />
   </ItemGroup>
 
 </Project>

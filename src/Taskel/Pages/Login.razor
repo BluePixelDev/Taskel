@@ -1,50 +1,62 @@
 ﻿@page "/login"
-@using DataAccessLibrary
-@using DataTemplateLibrary
-@using DataTemplateLibrary.Models;
-@using ServerManagement;
-@using LoginService;
-@inject ServerManager ServerManager;
-@inject NavigationManager NavManager;
-@inject LoginManager LoginManager;
+@using Taskel.Services;
+@using Taskel.Shared.Layouts;
+@using Taskel.Services.Authorization;
+@using Taskel.Services.Authorization.Exceptions;
 
+@layout ClearLayout;
+@inject AuthService authService;
+@inject NavigationManager NavManager;
 
 <div class="login-wrapper">
     <div class="login-form">
         <h1>Login</h1>
-        <input type="text"     placeholder="Username" class="input-field" @bind="@usernameInput" @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
-        <input type="password" placeholder="Password" class="input-field" @bind="@passwordInput" @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
+        <input type="text"
+               placeholder="Email"
+               class="input-field"
+               @bind="@emailInput"
+               @oninput="@((e) => { emailInput = ConvertInputToString(e.Value); })" />
+
+        <input type="password"
+               placeholder="Password"
+               class="input-field"
+               @bind="@passwordInput"
+               @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
 
         @if (!string.IsNullOrEmpty(warningText))
         {
             <ErrorBox message=@warningText />
         }
 
-        <button class="submit-button" @onclick="login">Log in</button>
+        <button class="submit-button" @onclick="LoginUser">Log in</button>
+        <p class="text-align-center">Don't have an account yet? <a onClick="window.location.replace('/signup')" href="/signup">Sign up!</a>	</p>
     </div>
 </div>
 
 @code {
-    private string usernameInput = "";
+    private string emailInput = "";
     private string passwordInput = "";
     private string warningText = "";
 
-    public void login()
+    public void LoginUser()
     {
         try
         {
-            LoginManager.Login(usernameInput, passwordInput);
-            NavManager.NavigateTo("/");
-        }
-        catch (LoginSignupException e)
-        {
-            if(e.Message == "Users password is not right")
+            if (authService.Login(emailInput, passwordInput))
             {
-                warningText = "Wrong credentials, invalid username or password";
+                NavManager.NavigateTo("/");
             }
-            if (e.Message == "User wasnt found in the database")
+        }
+        catch (AuthLoginException e)
+        {
+            switch (e.ExceptionType)
             {
-                warningText = "Could not found an account with matching credentials.";
+                case AuthLoginExceptionType.EmailNotFound | AuthLoginExceptionType.UserNotFound:
+                    warningText = "Could not found an account with matching credentials.";
+                    break;
+                case AuthLoginExceptionType.CredentialsMismatch:
+                    warningText = "Wrong credentials, invalid username or password";
+                    break;
             }
         }
     }

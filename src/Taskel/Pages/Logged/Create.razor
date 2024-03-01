@@ -1,12 +1,4 @@
 ﻿@page "/user/create"
-@using DataAccessLibrary
-@using DataTemplateLibrary
-@using DataTemplateLibrary.Models;
-@using CookieService;
-@using SessionService;
-@using ServerManagement;
-@inject ServerManagement.ServerManager serverManager;
-@inject LoginService.LoginManager LoginManager;
 @inject NavigationManager NavManager;
 
 <h2>Create</h2>
@@ -78,16 +70,6 @@
             return;
         }
 
-        DBService service = new DBService(LoginManager.UserID,Name, Price, DateOnly.FromDateTime(DateTime.Now), null, Listed, Description, DescriptionLong, null,false);
-        try 
-        {
-            serverManager.CreateService(LoginManager.SessionID,service);
-            NavManager.NavigateTo("/");
-        } catch (Exception e)
-        {
-            WarningText = e.Message;
-        }
-        
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -97,11 +79,7 @@
 
     private void CheckLoggedIn()
     {
-        //kickes user if not signed in
-        if (!LoginManager.LoggedIn)
-        {
-            NavManager.NavigateTo("/login");
-        }
+       
     }
 }
 

@@ -1,29 +1,19 @@
 ﻿@page "/user"
-@using DataAccessLibrary;
-@using DataAccessLibrary.DAOS;
-@using DataTemplateLibrary.Models;
-@using SessionService;
-@inject CookieService.CookieManager Cookies;
-@inject ServerManagement.ServerManager ServerManager;
+
+@using Taskel.Services;
+
+@inject SessionService sessionService;
 @inject NavigationManager NavManager;
-@inject LoginService.LoginManager LoginManager;
 
 <div class="block">
-    <h1>@ClientUser.Name</h1>
+    <h1>@sessionService.Username</h1>
     <br />
-    <h3>@ClientUser.CurrentCredits K</h3>
+    <h3></h3>
     <a href="user/credit"><button>buy more credits</button></a>
     <br />
     <br />
     <a href="user/create"><button>create new service</button></a>
-    <div class="services-wrapper">
-        @foreach (DBService? service in ServerManager.GetAllServices())
-        {
-            if (service.UserId == ClientUser.ID)
-            {
-                <ServiceCard Service=service />
-            }
-        }
+    <div class="services-wrapper">}
     </div>
 </div>
 <br />
@@ -32,23 +22,12 @@
 </div>
 
 @code {
-    public DBUser ClientUser { get; set; } = new DBUser("","");
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnInitialized()
     {
-        await LoginManager.Fetch();
-        
-        if (!LoginManager.LoggedIn)
-        {          
-            NavManager.NavigateTo("/login");
-
-        }
-        else
+        if (!sessionService.IsLoggedIn)
         {
-            ClientUser = ServerManager.GetUserBySessionId(LoginManager.SessionID);
-            StateHasChanged();
+            NavManager.NavigateTo("/login");
         }
     }
-
 }
 

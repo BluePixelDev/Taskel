@@ -1,16 +1,39 @@
-﻿@using ServerManagement;
-@using DataTemplateLibrary.Models;
-@using LoginService;
-@inject ServerManager serverManager;
-@inject LoginManager loginManger;
-
-<div class="header">
-
+﻿<div class="header">
     <a class="logo" href="/"></a>
     <div class="navigation">
-        
+
         <a href="/">
             Home
+        </a>
+
+        <div class="dropdown">
+            <button class="dropbtn">Categories</button>
+            <div class="dropdown-content">
+
+                <div class="dropdown-item">
+                    <img class="dropdown-item-icon" src="/Images/Icons/Category/Texture_Icon.png" />
+                    <a href="/category/art">Art</a>
+                </div>
+
+                <div class="dropdown-item">
+                    <img class="dropdown-item-icon" src="/Images/Icons/Category/Music_Icon.png" />
+                    <a href="/category/music">Music</a>
+                </div>
+
+                <div class="dropdown-item">
+                    <img class="dropdown-item-icon" src="/Images/Icons/Category/Sound_Icon.png" />
+                    <a href="/category/sound">Sound</a>
+                </div>
+
+                <div class="dropdown-item">
+                    <img class="dropdown-item-icon" src="/Images/Icons/Category/Model_Icon.png" />
+                    <a href="/category/models">Models</a>
+                </div>
+            </div>
+        </div>
+
+        <a href="/explore">
+            Explore
         </a>
 
         @if (!isLoggedIn)
@@ -59,8 +82,8 @@
         <span></span>
         <span></span>
     </button>
-
 </div>
+
 <div class="header-space"></div>
 
 @code {
@@ -70,27 +93,12 @@
 
     protected override void OnInitialized()
     {
-        if (loginManger != null)
-        {
-            loginManger.OnUpdate += () =>
-            {
-                isLoggedIn = loginManger.LoggedIn;
-                DBUser? user = serverManager.GetUserById(loginManger.UserID);
 
-                if (user != null)
-                {
-                    userCredits = user.CurrentCredits;
-                }
-
-                StateHasChanged();
-            };
-
-        }
     }
 
     private void Logout()
     {
-        loginManger?.Logout();
+
     }
 
     private void ToggleMenu()

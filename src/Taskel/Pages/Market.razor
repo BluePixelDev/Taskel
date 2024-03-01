@@ -1,17 +1,5 @@
-﻿@page "/";
-@using ServerManagement;
-@using DataTemplateLibrary.Models;
-@inject ServerManager serverManger;
+﻿@page "/market";
 
 <div class="services-wrapper">
-    @foreach(DBService? service in serverManger.GetAllServices())
-    {
-        if(service != null)
-        {
-            if ((service.IsShown) && (!service.IsDeleted))
-            {
-                <ServiceCard Service=service />
-            }
-        }   
-    }
+    
 </div>

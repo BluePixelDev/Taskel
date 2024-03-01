@@ -1,63 +1,91 @@
 ﻿@page "/signup"
-@using LoginService;
-@inject LoginManager loginManager;
+@using Taskel.Shared.Layouts;
+@using Taskel.Services.Authorization;
+@using Taskel.Services.Authorization.Exceptions;
+
+@layout ClearLayout;
+@inject AuthService authService;
 @inject NavigationManager NavManager;
 
 <div class="signup-wrapper">
-	<div class="signup-form">
-		<h1>Signup</h1>
-		<input type="text"	   placeholder="Username"		 class="input-field" @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
-		<input type="password" placeholder="Password"		 class="input-field" @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
-		<input type="password" placeholder="Repeat Password" class="input-field" @oninput="@((e) => { passwordInputCheck = ConvertInputToString(e.Value); })" />
-		
-		@if (!string.IsNullOrEmpty(warningText))
-		{
-			<ErrorBox message=@warningText />
-		}
+    <div class="signup-form">
+        <h1>Signup</h1>
+        <input type="text"
+               placeholder="Username"
+               class="input-field"
+               @oninput="@((e) => { usernameInput = ConvertInputToString(e.Value); })" />
 
-		<button class="submit-button" @onclick="CreateUser">Sign up</button>
-		<p>Allready have an account? <a href="/login">Log in</a>	</p>
-	</div>
+        <input type="text"
+               placeholder="Email"
+               class="input-field"
+               @oninput="@((e) => { emailInput = ConvertInputToString(e.Value); })" />
+
+        <input type="password"
+               placeholder="Password"
+               class="input-field"
+               @oninput="@((e) => { passwordInput = ConvertInputToString(e.Value); })" />
+
+        <input type="password"
+               placeholder="Repeat Password"
+               class="input-field"
+               @oninput="@((e) => { passwordInputCheck = ConvertInputToString(e.Value); })" />
+
+        @if (!string.IsNullOrEmpty(warningText))
+        {
+            <ErrorBox message=@warningText />
+        }
+
+        <button class="submit-button" @onclick="CreateUser">Sign up</button>
+        <p class="text-align-center">Allready have an account? <a onClick="window.location.replace('/login')" href="/login">Log in</a>	</p>
+    </div>
 </div>
 
 @code {
-	private string usernameInput = "";
-	private string passwordInput = "";
-	private string passwordInputCheck = "";
+    private string usernameInput = "";
+    private string emailInput = "";
+    private string passwordInput = "";
+    private string passwordInputCheck = "";
 
-	private string warningText = "";
+    private string warningText = "";
 
-	public void CreateUser()
-	{
-		if (string.IsNullOrEmpty(usernameInput)) 
-		{
-			warningText = "The username field cannot be empty!";
-		}
-		if (string.IsNullOrEmpty(passwordInputCheck)) 
-		{
-			warningText = "The password cannot be empty!";
-			return;
-		}
-		if (passwordInput != passwordInputCheck)
-		{
-			warningText = "The passwords do not match!";
-			return;
-		}
+    public void CreateUser()
+    {
+        if (string.IsNullOrEmpty(usernameInput))
+        {
+            warningText = "The username field cannot be empty!";
+        }
+        if (string.IsNullOrEmpty(passwordInputCheck))
+        {
+            warningText = "The password cannot be empty!";
+            return;
+        }
+        if (passwordInput != passwordInputCheck)
+        {
+            warningText = "The passwords do not match!";
+            return;
+        }
 
-		try {
-			loginManager.Signup(usernameInput, passwordInput);
-		} 
-		catch (LoginSignupException e) {
-			Console.WriteLine(e.Message);
-			warningText = "Encountered an error, please try again later.";
-			return;
-		}
-		NavManager.NavigateTo("/");
-	}
+        try
+        {
+            if (authService.Register(usernameInput, emailInput, passwordInput))
+            {
+                NavManager.NavigateTo("/");
+            }
+        }
+        catch (AuthRegisterException e)
+        {
+            switch (e.ExceptionType)
+            {
+                case AuthRegisterExceptionType.UserAlreadyExists:
+                    warningText = "User with the same email already exists!";
+                    break;
+            }
+        }
+    }
 
 
-	private string ConvertInputToString(object? input)
-	{
-		return input != null ? (string)input : "";
-	}
+    private string ConvertInputToString(object? input)
+    {
+        return input != null ? (string)input : "";
+    }
 }

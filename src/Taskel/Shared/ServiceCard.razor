@@ -1,70 +1,18 @@
-﻿@using DataTemplateLibrary.Models;
-@using ServerManagement;
-@inject ServerManager serverManager;
-
-<div class="service-wrapper">
-    <a href="/service/@ServiceID">
+﻿<div class="service-wrapper">
+    <a href="/service/ServiceID">
 
         <div>
-            <h3>@ServiceName</h3>
-            <p>By: @ServiceOwner</p>
-            <p>@ServiceDescription</p>
+            <h3>ServiceName</h3>
+            <p>By: ServiceOwner</p>
+            <p>ServiceDescription</p>
         </div>
 
         <div class="service-price">
-            <h3>@ServicePrice K</h3>
+            <h3>ServicePrice K</h3>
         </div>
     </a>
 </div>
 
 @code {
 
-    [Parameter]
-    public DBService? Service { get; set; }
-
-    private int ServiceID
-    {
-        get
-        {
-            return Service != null ? Service.ID : 0;
-        }
-    }
-    private string ServiceName { 
-        get {
-            return Service != null ? Service.ServiceName: ""; ;
-        }
-    }
-    private string ServiceDescription
-    {
-        get
-        {
-            return Service != null ? Service.ShortDescription : "";
-        }
-    }
-    private int ServicePrice
-    {
-        get
-        {
-            return Service != null ? Service.CurrentPrice : 0;
-        }
-    }
-    private string ServiceOwner { 
-        get
-        {
-            if(Service == null)
-            {
-                return "";
-            }
-            DBUser? user = null;
-            try
-            {
-                user = serverManager.GetUserById(Service.UserId);
-            }
-            catch
-            {
-                return "";
-            }
-            return user.Name;
-        }
-    }
 }
