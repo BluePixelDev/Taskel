@@ -20,6 +20,8 @@ namespace TaskelDB.Models
         public bool IsDeleted { get; set; }
         public int Category { get; set; }
 
+        public UserModel? UserModel { get; set; }
+
         public override string ToString()
         {
             return $"ID: {ID}, User_ID: {User_ID}, Ser_Name: {Ser_Name}, Current_Price: {Current_Price}, " +

@@ -1,4 +1,5 @@
-﻿using TaskelDB.Interfaces;
+﻿using MySqlConnector;
+using TaskelDB.Interfaces;
 using TaskelDB.Models;
 using TaskelDB.Utility;
 
@@ -33,14 +34,20 @@ namespace TaskelDB.DAO
             "FROM email_addresses " +
             "WHERE email_address = @email_address";
 
+        private static readonly string sqlGetByEmailWithUser =
+            "SELECT email_adresses.id, email_address, users.id, users.name" +
+            "FROM email_addresses " +
+            "WHERE email_address = @email_address";
+
         #region CORE DAO
         /// <summary>
-        /// Creates new User entry in the database.
+        /// Creates new User entry in the database. Email is automatically converted to lowercase.
         /// </summary>
-        public long Create(EmailModel user)
+        public long Create(EmailModel emails)
         {
+            emails.Email_Address = emails.Email_Address.ToLower();
             using var conn = DBConnection.Instance.GetConnection();
-            var data = DBMapper.MapToParameters(user);
+            var data = MapToParameters(emails);
 
             try
             {
@@ -62,14 +69,14 @@ namespace TaskelDB.DAO
         public EmailModel? Get(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
             {
                 using var cmd = DBUtility.CreateCommand(conn, sqlGetCmd, parameters);
                 using var reader = cmd.ExecuteReader();
-                return reader.MapSingle<EmailModel>();
+                return MapSingle(reader);
             }
             catch (Exception ex)
             {
@@ -89,7 +96,7 @@ namespace TaskelDB.DAO
             {
                 using var cmd = DBUtility.CreateCommand(conn, sqlGetAllCmd);
                 using var reader = cmd.ExecuteReader();
-                return reader.MapAll<EmailModel>();
+                return MapAll(reader);
 
             }
             catch (Exception ex)
@@ -103,10 +110,10 @@ namespace TaskelDB.DAO
         /// <summary>
         /// Update row data of specified User.
         /// </summary>
-        public void Update(EmailModel user)
+        public void Update(EmailModel email)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            var parameters = DBMapper.MapToParameters(user);
+            var parameters = MapToParameters(email);
 
             try
             {
@@ -115,7 +122,7 @@ namespace TaskelDB.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error updating email with id {user.ID}: {ex.Message}");
+                Console.WriteLine($"Error updating email with id {email.ID}: {ex.Message}");
             }
         }
 
@@ -125,7 +132,7 @@ namespace TaskelDB.DAO
         public void Delete(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
@@ -141,26 +148,56 @@ namespace TaskelDB.DAO
         }
         #endregion
 
+
+
         /// <summary>
         /// Returns EmailModel by the emailAddress.
         /// </summary>
-        public static EmailModel? GetByEmail(string emailAddress)
+        public EmailModel? GetByEmail(string emailAddress)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("email_address", emailAddress);
 
             try
             {
                 using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmail, parameters);
                 using var reader = cmd.ExecuteReader();
-                return reader.MapSingle<EmailModel>();
+                return MapSingle(reader);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error getting email: {ex.Message}");
             }
             return null;
+        }
+
+
+        public static List<EmailModel> MapAll(MySqlDataReader reader)
+        {
+            List<EmailModel> result = [];
+            while (reader.Read())
+            {
+                result.Add(MapSingle(reader));
+            }
+            return result;
+        }
+        public static EmailModel MapSingle(MySqlDataReader reader)
+        {
+            return new EmailModel()
+            {
+                ID = reader.GetInt32("id"),
+                User_ID = reader.GetInt32("user_id"),
+                Email_Address = reader.GetString("email_address")
+            };
+        }
+        public static DBParameters MapToParameters(EmailModel model)
+        {
+            DBParameters parameters = new();
+            parameters.AddParameter("id", model.ID);
+            parameters.AddParameter("user_id", model.User_ID);
+            parameters.AddParameter("email_address", model.Email_Address);
+            return parameters;
         }
     }
 }

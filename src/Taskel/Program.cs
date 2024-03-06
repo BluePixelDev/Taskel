@@ -18,12 +18,11 @@ namespace Taskel
             builder.Services.AddScoped<SessionService>();
             var app = builder.Build();
 
+            var connectionString = builder.Configuration["ConnectionStrings:DatabaseConnection"] ?? "";
+            Console.WriteLine(connectionString);
             MySqlConnectionStringBuilder stringBuilder = new()
             {
-                UserID = "ppraxe",
-                Password = "Ppraxe+01",
-                Database = "praxedb",
-                Server = "93.99.225.235",
+                ConnectionString = connectionString,
                 ConnectionTimeout = 10,
             };
 

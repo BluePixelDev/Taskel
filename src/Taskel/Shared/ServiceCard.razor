@@ -1,18 +1,35 @@
-﻿<div class="service-wrapper">
-    <a href="/service/ServiceID">
+﻿@using TaskelDB.Models;
+
+<div class="service-wrapper">
+    <a href="/service/@serviceID">
 
         <div>
-            <h3>ServiceName</h3>
-            <p>By: ServiceOwner</p>
-            <p>ServiceDescription</p>
+            <h3>@serviceName</h3>
+            <p>By:@serviceOwner</p>
+            <p>@serviceDescription</p>
         </div>
 
         <div class="service-price">
-            <h3>ServicePrice K</h3>
+            <p>@servicePrice K</p>
         </div>
     </a>
 </div>
 
 @code {
+    [Parameter] public ServiceModel? serviceModel { get; set; }
 
+    private long serviceID = -1;
+    private string serviceName = "";
+    private string serviceOwner = "";
+    private string serviceDescription = "";
+    private int servicePrice;
+
+    protected override void OnInitialized()
+    {
+        serviceID = serviceModel != null ? serviceModel.ID : -1;
+        serviceName = serviceModel != null ? serviceModel.Ser_Name : "";
+        serviceOwner = serviceModel != null ? "" + serviceModel.User_ID : "";
+        serviceDescription = serviceModel != null ? serviceModel.Short_Description : "";
+        servicePrice = serviceModel != null ? serviceModel.Current_Price : 0;
+    }
 }

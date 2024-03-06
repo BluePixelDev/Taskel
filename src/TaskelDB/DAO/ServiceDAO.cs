@@ -4,6 +4,14 @@ using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
 {
+    public enum ServiceType
+    {
+        Art,
+        Sound,
+        Music,
+        Models
+    }
+
     public class ServiceDAO : IDAO<ServiceModel>
     {
         private static readonly string sqlGetCmd =
@@ -34,6 +42,19 @@ namespace TaskelDB.DAO
             "FROM services " +
             "WHERE user_id = @user_id";
 
+        private static readonly string sqlGetByPageCmd =
+           "SELECT id, user_id, ser_name, current_price, creation, `update`, isShown, short_description, long_description, link, isDeleted, category " +
+           "FROM services " +
+           "LIMIT @limit " +
+           "OFFSET @offset ";
+
+        private static readonly string sqlGetByPageWithUsersCmd =
+         "SELECT id, name, ser_name, current_price, creation, `update`, isShown, short_description, long_description, link, isDeleted, category " +
+         "FROM services " +
+         "LEFT JOIN users on services.user_id = users.id" +
+         "LIMIT @limit " +
+         "OFFSET @offset ";
+
         #region CORE DAO
         /// <summary>
         /// Creates new service entry in the database.
@@ -63,7 +84,7 @@ namespace TaskelDB.DAO
         public ServiceModel? Get(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
@@ -125,7 +146,7 @@ namespace TaskelDB.DAO
         public void Delete(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
@@ -147,7 +168,7 @@ namespace TaskelDB.DAO
         public static List<ServiceModel> GetAllByUser(long userID)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("user_id", userID);
 
             try
@@ -159,6 +180,30 @@ namespace TaskelDB.DAO
             catch (Exception ex)
             {
                 Console.WriteLine($"Error getting services by user: {ex.Message}");
+            }
+
+            return [];
+        }
+
+        /// <summary>
+        /// Returns all services on a specific page.
+        /// </summary>
+        public static List<ServiceModel> GetByPage(int pageNumber, int entriesPerPage)
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            DBParameters parameters = new();
+            parameters.AddParameter("offset", pageNumber * entriesPerPage);
+            parameters.AddParameter("limit", entriesPerPage);
+
+            try
+            {
+                using var cmd = DBUtility.CreateCommand(conn, sqlGetByPageCmd, parameters);
+                using var reader = cmd.ExecuteReader();
+                return reader.MapAll<ServiceModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting services by page: {ex.Message}");
             }
 
             return [];

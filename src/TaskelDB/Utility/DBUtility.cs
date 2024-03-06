@@ -11,7 +11,7 @@ namespace TaskelDB.Utility
         /// <summary>
         /// Creates new command from connection and inserts specified parameters into it.
         /// </summary>
-        public static MySqlCommand CreateCommand(MySqlConnection connection, string sql, DBParemeters parameters)
+        public static MySqlCommand CreateCommand(MySqlConnection connection, string sql, DBParameters parameters)
         {
             var cmd = connection.CreateCommand();
             cmd.CommandText = sql;
@@ -52,7 +52,7 @@ namespace TaskelDB.Utility
         /// <summary>
         /// Reads and maps single element.
         /// </summary>
-        public static T? ReadAndMapSingle<T>(string sql, DBParemeters paremeters) where T : IElement 
+        public static T? ReadAndMapSingle<T>(string sql, DBParameters paremeters) where T : IElement 
         { 
             using var conn = DBConnection.Instance.GetConnection();
             using var cmd = CreateCommand(conn, sql, paremeters);
@@ -63,7 +63,7 @@ namespace TaskelDB.Utility
         /// <summary>
         /// Reads and maps all elements
         /// </summary>
-        public static List<T> ReadAndMapMultiple<T>(string sql, DBParemeters paremeters) where T : IElement
+        public static List<T> ReadAndMapMultiple<T>(string sql, DBParameters paremeters) where T : IElement
         {
             using var conn = DBConnection.Instance.GetConnection();
             using var cmd = CreateCommand(conn, sql, paremeters);

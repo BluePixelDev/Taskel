@@ -1,4 +1,6 @@
-﻿namespace TaskelDB.Interfaces
+﻿using MySqlConnector;
+
+namespace TaskelDB.Interfaces
 {
     /// <summary>
     /// Base interface for DAO classes.

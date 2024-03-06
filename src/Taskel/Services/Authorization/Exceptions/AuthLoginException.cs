@@ -3,6 +3,7 @@
     public enum AuthLoginExceptionType
     {
         UserNotFound,
+        InvalidEmail,
         EmailNotFound,
         CredentialsMismatch
     }

@@ -62,7 +62,7 @@ namespace TaskelDB.DAO
         /// </summary>
         public TransactionModel? Get(long id)
         {
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
             using var conn = DBConnection.Instance.GetConnection();
 
@@ -127,7 +127,7 @@ namespace TaskelDB.DAO
         /// </summary>
         public void Delete(long id)
         {
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
             using var conn = DBConnection.Instance.GetConnection();
             MySqlTransaction transaction = conn.BeginTransaction();

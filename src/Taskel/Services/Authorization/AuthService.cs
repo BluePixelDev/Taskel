@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Taskel.Services.Authorization.Exceptions;
 using TaskelDB.DAO;
 using TaskelDB.Models;
@@ -8,7 +9,8 @@ namespace Taskel.Services.Authorization
 {
     public class AuthService(SessionService sessionService) : IAuthService
     {
-        private static readonly string hashSalt = "DC4U";
+        private static readonly string hashSalt = "TSKL";
+        private static readonly string emailPattern = @"^(?!.*@.*@)([a-z0-9]|-|\+|_|~|.)+@([a-z0-9]|-|_)+\.([a-z0-9]){2,}";
         private readonly SessionService sessionService = sessionService;
 
         /// <summary>
@@ -20,19 +22,27 @@ namespace Taskel.Services.Authorization
         /// <exception cref="AuthLoginException"></exception>
         public bool Login(string email, string password)
         {
-            string hashPassword = HashString(password);
+            if (Regex.IsMatch(email, emailPattern, RegexOptions.IgnoreCase))
+            {
+                EmailDAO emailDAO = new();
+                EmailModel? emailModel = emailDAO.GetByEmail(email.ToLower())
+                    ?? throw new AuthLoginException(AuthLoginExceptionType.EmailNotFound, "The email could not be found in the database");
 
-            EmailModel? emailModel = EmailDAO.GetByEmail(email)
-                ?? throw new AuthLoginException(AuthLoginExceptionType.EmailNotFound, "The email could not be found in the database");
+                UserDAO userDAO = new();
+                UserModel? userModel = userDAO.Get(emailModel.User_ID)
+                    ?? throw new AuthLoginException(AuthLoginExceptionType.UserNotFound, "The user could not be found in the database");
 
-            UserDAO userDAO = new();
-            UserModel? userModel = userDAO.Get(emailModel.User_ID)
-                ?? throw new AuthLoginException(AuthLoginExceptionType.UserNotFound, "The user could not be found in the database");
+                string hashPassword = HashString(password);
+                if (userModel.HashedPassword != hashPassword)
+                    throw new AuthLoginException(AuthLoginExceptionType.CredentialsMismatch, "The username and password are incorect");
 
-            if (userModel.HashedPassword != hashPassword)
-                throw new AuthLoginException(AuthLoginExceptionType.CredentialsMismatch, "The username and password are incorect");
+                sessionService.SetSession(userModel.ID, userModel.Name);
+            }
+            else
+            {
+                throw new AuthLoginException(AuthLoginExceptionType.InvalidEmail, "The email is invalid!");
+            }
 
-            sessionService.SetSession(userModel.ID, userModel.Name);
             return true;
         }
 
@@ -55,31 +65,38 @@ namespace Taskel.Services.Authorization
         /// <exception cref="AuthRegisterException"></exception>
         public bool Register(string name, string email, string password)
         {
-            //Checks if email was already used in the database.
-            EmailModel? emailModel = EmailDAO.GetByEmail(email);
-            if(emailModel != null)
+            if (Regex.IsMatch(email, emailPattern, RegexOptions.IgnoreCase))
             {
-                throw new AuthRegisterException(AuthRegisterExceptionType.UserAlreadyExists, $"User with this email, {email}, already exists!");
+                //Checks if email was already used in the database.
+                EmailDAO emailDAO = new();
+                EmailModel? emailModel = emailDAO.GetByEmail(email);
+                if (emailModel != null)
+                {
+                    throw new AuthRegisterException(AuthRegisterExceptionType.UserAlreadyExists, $"User with this email, {email}, already exists!");
+                }
+
+                //Creates new user.
+                UserDAO userDAO = new();
+                long userID = userDAO.Create(new UserModel()
+                {
+                    Name = name,
+                    HashedPassword = HashString(password)
+                });
+
+                //Creates new email.
+                emailDAO.Create(new EmailModel()
+                {
+                    User_ID = userID,
+                    Email_Address = email.ToLower()
+                });
+
+                sessionService.SetSession(userID, name);
+                return true;
             }
-
-            //Creates new user.
-            UserDAO userDAO = new();
-            long userID = userDAO.Create(new UserModel()
+            else
             {
-                Name = name,
-                HashedPassword = HashString(password)
-            });
-
-            //Creates new email.
-            EmailDAO emailDAO = new();
-            emailDAO.Create(new EmailModel()
-            {
-                User_ID = userID,
-                Email_Address = email
-            });
-
-            sessionService.SetSession(userID, name);
-            return true;
+                throw new AuthRegisterException(AuthRegisterExceptionType.InvalidEmail, "The email is invalid!");
+            }
         }
 
         /// <summary>

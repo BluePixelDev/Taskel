@@ -66,7 +66,7 @@ namespace TaskelDB.DAO
         public UserModel? Get(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
@@ -128,7 +128,7 @@ namespace TaskelDB.DAO
         public void Delete(long id)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("id", id);
 
             try
@@ -150,7 +150,7 @@ namespace TaskelDB.DAO
         public static UserModel? GetByEmail(string emailAddress)
         {
             using var conn = DBConnection.Instance.GetConnection();
-            DBParemeters parameters = new();
+            DBParameters parameters = new();
             parameters.AddParameter("email_address", emailAddress);
 
             Console.WriteLine(sqlGetByEmail);

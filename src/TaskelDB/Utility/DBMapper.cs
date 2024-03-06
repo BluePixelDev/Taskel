@@ -72,9 +72,9 @@ namespace TaskelDB.Utility
         /// <summary>
         /// Creates a dictionary where left side represents column name and right side a value.
         /// </summary>
-		public static DBParemeters MapToParameters<T>(T model) where T : IElement
+		public static DBParameters MapToParameters<T>(T model) where T : IElement
         {
-            DBParemeters paremeters = new();
+            DBParameters paremeters = new();
             PropertyInfo[] properties = typeof(T).GetProperties();
             foreach (PropertyInfo property in properties)
             {

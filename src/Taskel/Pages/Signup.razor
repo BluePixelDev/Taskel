@@ -2,6 +2,7 @@
 @using Taskel.Shared.Layouts;
 @using Taskel.Services.Authorization;
 @using Taskel.Services.Authorization.Exceptions;
+@using System.Text.RegularExpressions;
 
 @layout ClearLayout;
 @inject AuthService authService;
@@ -67,6 +68,11 @@
 
         try
         {
+            if(usernameInput == "")
+            {
+                warningText = "Username cannot be empty!";
+                return;
+            }
             if (authService.Register(usernameInput, emailInput, passwordInput))
             {
                 NavManager.NavigateTo("/");
@@ -76,13 +82,16 @@
         {
             switch (e.ExceptionType)
             {
+                case AuthRegisterExceptionType.InvalidEmail:
+                    warningText = "Invalid email adress.";
+                    break;
+
                 case AuthRegisterExceptionType.UserAlreadyExists:
                     warningText = "User with the same email already exists!";
                     break;
             }
         }
     }
-
 
     private string ConvertInputToString(object? input)
     {

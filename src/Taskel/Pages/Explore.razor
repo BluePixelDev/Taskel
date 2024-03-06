@@ -1,7 +1,26 @@
-﻿@page "/explore"
+﻿@using TaskelDB.DAO;
+@using TaskelDB.Models;
 
-<h3>explore</h3>
+@page "/explore"
+@page "/explore/{PageID:int}"
+
+<h3>Explore</h3>
+<div class="content-wrapper">
+    <div class="services-wrapper">
+        @foreach (ServiceModel serviceModel in services)
+        {
+            <ServiceCard serviceModel=serviceModel />
+        }
+    </div>
+</div>
+
 
 @code {
+    [Parameter] public int PageID { get; set; } = 0;
+    ServiceModel[] services = [];
 
+    protected override void OnInitialized()
+    {
+        services = ServiceDAO.GetByPage(PageID, 10).ToArray();
+    }
 }

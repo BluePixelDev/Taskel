@@ -2,6 +2,7 @@
 {
     public enum AuthRegisterExceptionType
     {
+        InvalidEmail,
         UserAlreadyExists
     }
     public class AuthRegisterException(AuthRegisterExceptionType exceptionType, string message) : Exception(message)
