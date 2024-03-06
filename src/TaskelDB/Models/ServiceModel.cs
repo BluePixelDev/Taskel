@@ -21,6 +21,7 @@ namespace TaskelDB.Models
         public int Category { get; set; }
 
         public UserModel? UserModel { get; set; }
+        public ServiceCategoryModel? CategoryModel { get; set; }
 
         public override string ToString()
         {

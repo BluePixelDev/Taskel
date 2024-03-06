@@ -19,7 +19,6 @@ namespace Taskel
             var app = builder.Build();
 
             var connectionString = builder.Configuration["ConnectionStrings:DatabaseConnection"] ?? "";
-            Console.WriteLine(connectionString);
             MySqlConnectionStringBuilder stringBuilder = new()
             {
                 ConnectionString = connectionString,

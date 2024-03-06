@@ -28,7 +28,7 @@
     {
         serviceID = serviceModel != null ? serviceModel.ID : -1;
         serviceName = serviceModel != null ? serviceModel.Ser_Name : "";
-        serviceOwner = serviceModel != null ? "" + serviceModel.User_ID : "";
+        serviceOwner = serviceModel != null ? "" + serviceModel?.UserModel?.Name : "";
         serviceDescription = serviceModel != null ? serviceModel.Short_Description : "";
         servicePrice = serviceModel != null ? serviceModel.Current_Price : 0;
     }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Base interface for all models utilizing ID.
     /// </summary>
-    internal interface IElement
+    public interface IElement
     {
         public int ID { get; set; }
     }

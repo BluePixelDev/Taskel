@@ -1,59 +1,130 @@
-﻿using TaskelDB.Interfaces;
+﻿using MySqlConnector;
 using TaskelDB.Models;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
 {
-    public enum ServiceType
+    public class ServiceDAO : BaseDAO<ServiceModel>
     {
-        Art,
-        Sound,
-        Music,
-        Models
-    }
+        #region QUERIES
+        private static readonly string sqlGetCmd = @"
+			SELECT 
+			    id, 
+			    user_id, 
+			    ser_name, 
+                current_price, 
+                creation, 
+                update, 
+                isShown, 
+                short_description, 
+                long_description, 
+                link, isDeleted, 
+                category 
 
-    public class ServiceDAO : IDAO<ServiceModel>
-    {
-        private static readonly string sqlGetCmd =
-            "SELECT id, user_id, ser_name, current_price, creation, update, isShown, short_description, long_description, link, isDeleted, category " +
-            "FROM services " +
-            "WHERE id = @id";
+            FROM services
+            WHERE id = @id";
 
-        private static readonly string sqlGetAllCmd =
-            "SELECT id, user_id, ser_name, current_price, creation, update, isShown, short_description, long_description, link, isDeleted, category " +
-            "FROM services";
+        private static readonly string sqlGetAllCmd = @"
+            SELECT 
+                id,
+                user_id, 
+                ser_name, 
+                current_price, 
+                creation,
+                update, 
+                isShown, 
+                short_description, 
+                long_description, 
+                link, 
+                isDeleted, 
+                category 
 
-        private static readonly string sqlCreateCmd =
-            "INSERT INTO services " +
-            "VALUES (@id, @user_id, @ser_name, @current_price, @creation, @update, @isShown, @short_description, @long_description, @link, @isDeleted, @category)";
+            FROM services";
 
-        private static readonly string sqlDeleteCmd =
-            "DELETE FROM services " +
-            "WHERE id = @id";
+        private static readonly string sqlCreateCmd = @"
+            INSERT INTO 
+                services
+            VALUES (
+                @id, 
+                @user_id, 
+                @ser_name, 
+                @current_price, 
+                @creation, 
+                @update, 
+                @isShown, 
+                @short_description, 
+                @long_description,
+                @link, 
+                @isDeleted, 
+                @category)";
 
-        private static readonly string sqlUpdateCmd =
-            "UPDATE services " +
-            "SET id= @id, user_id= @user_id, ser_name= @ser_name, current_price= @current_price, creation= @creation, update= @update, isShown= @isShown, short_description= @short_description, long_description= @long_description,link= @link, isDeleted= @isDeleted, category= @category " +
-            "current_credits = @current_credits, isAdmin = @isAdmin " +
-            "WHERE id = @id";
+        private static readonly string sqlDeleteCmd = @"
+             DELETE FROM 
+                 services 
+             WHERE id = @id";
 
-        private static readonly string sqlGetByUserCmd =
-            "SELECT id, user_id, ser_name, current_price, creation, `update`, isShown, short_description, long_description, link, isDeleted, category " +
-            "FROM services " +
-            "WHERE user_id = @user_id";
+        private static readonly string sqlUpdateCmd =@"
+            UPDATE 
+                services 
+            SET 
+                id= @id, 
+                user_id= @user_id, 
+                ser_name= @ser_name, 
+                current_price= @current_price, 
+                creation= @creation, 
+                update= @update, isShown= @isShown, 
+                short_description= @short_description, 
+                long_description= @long_description,link= @link, 
+                isDeleted= @isDeleted, 
+                category= @category
+                current_credits = @current_credits, 
+                isAdmin = @isAdmin
+            WHERE id = @id";
 
-        private static readonly string sqlGetByPageCmd =
-           "SELECT id, user_id, ser_name, current_price, creation, `update`, isShown, short_description, long_description, link, isDeleted, category " +
-           "FROM services " +
-           "LIMIT @limit " +
-           "OFFSET @offset ";
+        private static readonly string sqlGetByUserCmd =@"
+            SELECT 
+                id, 
+                user_id, 
+                ser_name, 
+                current_price, 
+                creation, 
+                `update`, 
+                isShown, 
+                short_description, 
+                long_description, 
+                link, 
+                isDeleted, 
+                category 
+            FROM 
+                services
+            WHERE user_id = @user_id";
 
-        private static readonly string sqlGetByPageWithUsersCmd =
-         "SELECT id, name, ser_name, current_price, creation, `update`, isShown, short_description, long_description, link, isDeleted, category " +
-         "FROM services " +
-         "LEFT JOIN users on services.user_id = users.id" +
-         "LIMIT @limit " +
-         "OFFSET @offset ";
+        private static readonly string sqlGetByPage = @"
+			SELECT
+				services.id,
+				ser_name,
+				current_price,
+				creation,
+				`update`,
+				isShown,
+				short_description,
+				long_description,
+				link,
+				isDeleted,
+				category,
+
+				service_categories.category_name,
+
+				users.id as user_id,
+				users.name as user_name
+        
+			FROM services
+				LEFT JOIN users ON services.user_id = users.id
+				LEFT JOIN service_categories ON service_categories.id = category
+        
+			LIMIT @limit
+			OFFSET @offset";
+        #endregion
 
         #region CORE DAO
         /// <summary>
@@ -61,15 +132,9 @@ namespace TaskelDB.DAO
         /// </summary>
         public long Create(ServiceModel service)
         {
-            using var conn = DBConnection.Instance.GetConnection();
-            var parameters = DBMapper.MapToParameters(service);
-
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlCreateCmd, parameters);
-                cmd.ExecuteScalar();
-                var identity = DBUtility.GetLastID(conn);
-                return identity != null ? Convert.ToInt64(identity) : -1;
+                return CreateElement(service, sqlCreateCmd);
             }
             catch (Exception ex)
             {
@@ -83,15 +148,9 @@ namespace TaskelDB.DAO
         /// </summary>
         public ServiceModel? Get(long id)
         {
-            using var conn = DBConnection.Instance.GetConnection();
-            DBParameters parameters = new();
-            parameters.AddParameter("id", id);
-
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetCmd, parameters);
-                using var reader = cmd.ExecuteReader();
-                return reader.MapSingle<ServiceModel>();
+                return GetElement(id, sqlGetCmd);
             }
             catch (Exception ex)
             {
@@ -105,13 +164,9 @@ namespace TaskelDB.DAO
         /// </summary>
         public List<ServiceModel> GetAll()
         {
-            using var conn = DBConnection.Instance.GetConnection();
-
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetAllCmd);
-                using var reader = cmd.ExecuteReader();
-                return reader.MapAll<ServiceModel>();
+                return GetElements(sqlGetAllCmd);
             }
             catch (Exception ex)
             {
@@ -126,13 +181,9 @@ namespace TaskelDB.DAO
         /// </summary>
         public void Update(ServiceModel service)
         {
-            using var conn = DBConnection.Instance.GetConnection();
-            var data = DBMapper.MapToParameters(service);
-
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlUpdateCmd, data);
-                cmd.ExecuteScalar();
+                UpdateElement(service, sqlUpdateCmd);
             }
             catch (Exception ex)
             {
@@ -145,27 +196,98 @@ namespace TaskelDB.DAO
         /// </summary>
         public void Delete(long id)
         {
-            using var conn = DBConnection.Instance.GetConnection();
-            DBParameters parameters = new();
-            parameters.AddParameter("id", id);
-
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlDeleteCmd, parameters);
-                cmd.ExecuteScalar();
+                DeleteElement(id, sqlDeleteCmd);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting service with id {id}: {ex.Message}");
             }
+        }
+        #endregion
 
+        #region MAPPING
+        protected override ServiceModel MapSingle(MySqlDataReader reader)
+        {
+            return new ServiceModel()
+            {
+                ID = reader.GetInt32("id"),
+                User_ID = reader.GetInt32("user_id"),
+                Ser_Name = reader.GetString("ser_name"),
+                Current_Price = reader.GetInt32("current_price"),
+                Creation = reader.GetDateTime("creation"),
+                Update = reader.GetDateTime("update"),
+                IsShown = reader.GetBoolean("isShown"),
+                Short_Description = reader.GetString("short_description"),
+                Long_Description = reader.GetString("long_description"),
+                Link = reader.GetString("link"),
+                IsDeleted = reader.GetBoolean("isDeleted"),
+                Category = reader.GetInt32("category")
+            };
+        }
+        protected override DBParameters MapToParameters(ServiceModel model)
+        {
+            return new DBParameters()
+                .AddParameter("id", model.ID)
+                .AddParameter("user_id", model.User_ID)
+                .AddParameter("ser_name", model.Ser_Name)
+                .AddParameter("current_price", model.Current_Price)
+                .AddParameter("creation", model.Creation)
+                .AddParameter("update", model.Update)
+                .AddParameter("isShown", model.IsShown)
+                .AddParameter("short_description", model.Short_Description)
+                .AddParameter("long_description", model.Long_Description)
+                .AddParameter("link", model.Link)
+                .AddParameter("isDeleted", model.IsDeleted)
+                .AddParameter("category", model.Category);
+        }
+
+        private static ServiceModel MapSinglePage(MySqlDataReader reader)
+        {
+            return new ServiceModel()
+            {
+                ID = reader.GetInt32("id"),
+                User_ID = reader.GetInt32("user_id"),
+                Ser_Name = reader.GetString("ser_name"),
+                Current_Price = reader.GetInt32("current_price"),
+                Creation = reader.ReadDateTime("creation"),
+                Update = reader.ReadDateTime("update"),
+                IsShown = reader.GetBoolean("isShown"),
+                Short_Description = reader.ReadString("short_description"),
+                Long_Description = reader.ReadString("long_description"),
+                Link = reader.ReadString("link"),
+                IsDeleted = reader.GetBoolean("isDeleted"),
+                Category = reader.GetInt32("category"),
+
+                UserModel = new UserModel()
+                {
+                    ID = reader.GetInt32("user_id"),
+                    Name = reader.GetString("user_name"),
+                },
+
+                CategoryModel = new ServiceCategoryModel()
+                {
+                    ID = reader.GetInt32("category"),
+                    Name = reader.GetString("category_name")
+                }
+            };
+        }
+        private List<ServiceModel> MapAllPage(MySqlDataReader reader)
+        {
+            List<ServiceModel> list = [];
+            while (reader.Read())
+            {
+                list.Add(MapSinglePage(reader));
+            }
+            return list;
         }
         #endregion
 
         /// <summary>
         /// Returns all services that are owned by specified user from the database.
         /// </summary>
-        public static List<ServiceModel> GetAllByUser(long userID)
+        public List<ServiceModel> GetAllByUser(long userID)
         {
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
@@ -175,7 +297,7 @@ namespace TaskelDB.DAO
             {
                 using var cmd = DBUtility.CreateCommand(conn, sqlGetByUserCmd, parameters);
                 using var reader = cmd.ExecuteReader();
-                return reader.MapAll<ServiceModel>();
+                return MapAll(reader);
             }
             catch (Exception ex)
             {
@@ -188,7 +310,7 @@ namespace TaskelDB.DAO
         /// <summary>
         /// Returns all services on a specific page.
         /// </summary>
-        public static List<ServiceModel> GetByPage(int pageNumber, int entriesPerPage)
+        public List<ServiceModel> GetByPage(int pageNumber, int entriesPerPage)
         {
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
@@ -197,9 +319,9 @@ namespace TaskelDB.DAO
 
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetByPageCmd, parameters);
+                using var cmd = DBUtility.CreateCommand(conn, sqlGetByPage, parameters);
                 using var reader = cmd.ExecuteReader();
-                return reader.MapAll<ServiceModel>();
+                return MapAllPage(reader);
             }
             catch (Exception ex)
             {

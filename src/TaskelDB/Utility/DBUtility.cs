@@ -48,27 +48,5 @@ namespace TaskelDB.Utility
             using var cmd = CreateCommand(connection, "SELECT LAST_INSERT_ID()");
             return cmd.ExecuteScalar();
         }
-
-        /// <summary>
-        /// Reads and maps single element.
-        /// </summary>
-        public static T? ReadAndMapSingle<T>(string sql, DBParameters paremeters) where T : IElement 
-        { 
-            using var conn = DBConnection.Instance.GetConnection();
-            using var cmd = CreateCommand(conn, sql, paremeters);
-            using var reader = cmd.ExecuteReader();
-            return DBMapper.MapSingle<T>(reader);
-        }
-
-        /// <summary>
-        /// Reads and maps all elements
-        /// </summary>
-        public static List<T> ReadAndMapMultiple<T>(string sql, DBParameters paremeters) where T : IElement
-        {
-            using var conn = DBConnection.Instance.GetConnection();
-            using var cmd = CreateCommand(conn, sql, paremeters);
-            using var reader = cmd.ExecuteReader();
-            return DBMapper.MapAll<T>(reader);
-        }
     }
 }
