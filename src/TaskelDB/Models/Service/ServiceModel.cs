@@ -1,9 +1,10 @@
 ﻿using TaskelDB.Interfaces;
+using TaskelDB.Models.User;
 
-namespace TaskelDB.Models
+namespace TaskelDB.Models.Service
 {
     /// <summary>
-    /// A data model describbing a Service.
+    /// A data model describbing a service.
     /// </summary>
     public class ServiceModel : IElement
     {

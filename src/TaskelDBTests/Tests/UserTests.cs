@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 using TaskelDB;
 using TaskelDB.DAO;
-using TaskelDB.Models;
+using TaskelDB.Models.User;
 
 namespace TaskelDBTests.Tests
 {

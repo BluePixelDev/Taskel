@@ -1,0 +1,53 @@
+﻿@using TaskelDB.Models.Service;
+@using TaskelDB.DAO;
+@using Taskel.Authentication;
+@using System.Security.Claims;
+
+@inject NavigationManager navManager;
+
+@page "/dashboard"
+
+<div class="content-wrapper">
+    <h1>Your Services:</h1>
+    <a href="service/create">
+        <button>Create New Service</button>
+    </a>
+
+    <div class="services-wrapper">
+        @foreach(ServiceModel serviceModel in serviceModels)
+        {
+            <ServiceCard serviceModel="serviceModel" />
+        }
+    </div>
+</div>
+
+@code {
+    private int userID;
+    private ServiceModel[] serviceModels = [];
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState != null)
+        {
+            var authState = await authenticationState;
+            if (authState.User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
+                userID = Convert.ToInt32(userIdClaim?.Value);
+                FetchServices(userID);
+            }
+            else
+            {
+                navManager.NavigateTo("/signup");
+            }
+        }   
+    }
+
+    private void FetchServices(int userID)
+    {
+        ServiceDAO serviceDAO = new();
+        serviceModels = serviceDAO.GetAllServicesByUser(userID).ToArray();
+    }
+}
+

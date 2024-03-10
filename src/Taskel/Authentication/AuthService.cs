@@ -1,17 +1,18 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using Taskel.Services.Authorization.Exceptions;
+using Taskel.Authentication.Exceptions;
 using TaskelDB.DAO;
-using TaskelDB.Models;
+using TaskelDB.Models.User;
 
-namespace Taskel.Services.Authorization
+namespace Taskel.Authentication
 {
-    public class AuthService(SessionService sessionService) : IAuthService
+    public class AuthService(AuthenticationStateProvider authenticationStateProvider)
     {
         private static readonly string hashSalt = "TSKL";
         private static readonly string emailPattern = @"^(?!.*@.*@)([a-z0-9]|-|\+|_|~|.)+@([a-z0-9]|-|_)+\.([a-z0-9]){2,}";
-        private readonly SessionService sessionService = sessionService;
+        private readonly TaskelAuthenticationStateProvider authProvider = (TaskelAuthenticationStateProvider)authenticationStateProvider;
 
         /// <summary>
         /// Logs in the user and creates a session.
@@ -20,12 +21,12 @@ namespace Taskel.Services.Authorization
         /// <param name="password">The password of target user.</param>
         /// <returns></returns>
         /// <exception cref="AuthLoginException"></exception>
-        public bool Login(string email, string password)
+        public async Task<bool> Login(string email, string password)
         {
             if (Regex.IsMatch(email, emailPattern, RegexOptions.IgnoreCase))
             {
                 EmailDAO emailDAO = new();
-                EmailModel? emailModel = emailDAO.GetByEmail(email.ToLower())
+                EmailModel? emailModel = emailDAO.GetEmailByAddress(email.ToLower())
                     ?? throw new AuthLoginException(AuthLoginExceptionType.EmailNotFound, "The email could not be found in the database");
 
                 UserDAO userDAO = new();
@@ -36,7 +37,11 @@ namespace Taskel.Services.Authorization
                 if (userModel.HashedPassword != hashPassword)
                     throw new AuthLoginException(AuthLoginExceptionType.CredentialsMismatch, "The username and password are incorect");
 
-                sessionService.SetSession(userModel.ID, userModel.Name);
+                await authProvider.UpdateAuthenticationState(new UserSession()
+                {
+                    UserID = userModel.ID,
+                    Username = userModel.Name,               
+                });
             }
             else
             {
@@ -49,9 +54,9 @@ namespace Taskel.Services.Authorization
         /// <summary>
         /// Logs out the user.
         /// </summary>
-        public void Logout()
+        public async Task Logout()
         {
-            sessionService.ClearSeession();
+            await authProvider.UpdateAuthenticationState(null);
         }
 
         /// <summary>
@@ -63,13 +68,13 @@ namespace Taskel.Services.Authorization
         /// <param name="password">The password of registered user.</param>
         /// <returns></returns>
         /// <exception cref="AuthRegisterException"></exception>
-        public bool Register(string name, string email, string password)
+        public async Task<bool> Register(string name, string email, string password, bool autoLogin = true)
         {
             if (Regex.IsMatch(email, emailPattern, RegexOptions.IgnoreCase))
             {
                 //Checks if email was already used in the database.
                 EmailDAO emailDAO = new();
-                EmailModel? emailModel = emailDAO.GetByEmail(email);
+                EmailModel? emailModel = emailDAO.GetEmailByAddress(email);
                 if (emailModel != null)
                 {
                     throw new AuthRegisterException(AuthRegisterExceptionType.UserAlreadyExists, $"User with this email, {email}, already exists!");
@@ -90,7 +95,9 @@ namespace Taskel.Services.Authorization
                     Email_Address = email.ToLower()
                 });
 
-                sessionService.SetSession(userID, name);
+                if (autoLogin)
+                    await Login(email, password);
+
                 return true;
             }
             else

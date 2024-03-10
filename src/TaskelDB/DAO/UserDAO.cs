@@ -1,10 +1,10 @@
 ﻿using MySqlConnector;
-using TaskelDB.Models;
+using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
 {
-	public class UserDAO : BaseDAO<UserModel>
+    public class UserDAO : BaseDAO<UserModel>
 	{
         #region QUERIES
         private static readonly string sqlGetCmd = @"
@@ -43,7 +43,7 @@ namespace TaskelDB.DAO
 				isAdmin = @isAdmin
 			WHERE id = @id";
 
-        private static readonly string sqlGetByEmail = @"
+        private static readonly string sqlGetByEmailCmd = @"
 			SELECT
 				users.id,
 				name,
@@ -63,7 +63,7 @@ namespace TaskelDB.DAO
 		{
 			try
 			{
-				CreateElement(user, sqlCreateCmd);
+				return CreateElement(user, sqlCreateCmd);
 			}
 			catch (Exception ex)
 			{
@@ -146,7 +146,7 @@ namespace TaskelDB.DAO
                 ID = reader.GetInt32("id"),
                 Name = reader.GetString("name"),
                 Current_Credits = reader.GetInt32("current_credits"),
-                HashedPassword = reader.GetString("hashed_password"),
+                HashedPassword = reader.GetString("hashedPassword"),
                 IsAdmin = reader.GetBoolean("isAdmin")
             };
         }
@@ -156,7 +156,7 @@ namespace TaskelDB.DAO
                 .AddParameter("id", model.ID)
                 .AddParameter("name", model.Name)
                 .AddParameter("current_credits", model.Current_Credits)
-                .AddParameter("hashed_Password", model.HashedPassword)
+                .AddParameter("hashedPassword", model.HashedPassword)
                 .AddParameter("isAdmin", model.IsAdmin);
         }
         #endregion
@@ -164,7 +164,7 @@ namespace TaskelDB.DAO
         /// <summary>
         /// Returns user from the database with specified email.
         /// </summary>
-        public UserModel? GetByEmail(string emailAddress)
+        public UserModel? GetUserByEmail(string emailAddress)
 		{
 			using var conn = DBConnection.Instance.GetConnection();
 			DBParameters parameters = new();
@@ -172,10 +172,13 @@ namespace TaskelDB.DAO
 
 			try
 			{
-				using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmail, parameters);
+				using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmailCmd, parameters);
 				using var reader = cmd.ExecuteReader();
-				return MapSingle(reader);
-			}
+                if (reader.Read())
+                {
+                    return MapSingle(reader);
+                }
+            }
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error getting user: {ex.Message}");

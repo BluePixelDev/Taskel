@@ -1,10 +1,10 @@
 ﻿using MySqlConnector;
-using TaskelDB.Models;
+using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
 {
-	public class EmailDAO : BaseDAO<EmailModel>
+    public class EmailDAO : BaseDAO<EmailModel>
 	{
         #region QUERIES
         private static readonly string sqlGetCmd = @"
@@ -150,7 +150,7 @@ namespace TaskelDB.DAO
         /// <summary>
         /// Returns EmailModel by the emailAddress.
         /// </summary>
-        public EmailModel? GetByEmail(string emailAddress)
+        public EmailModel? GetEmailByAddress(string emailAddress)
 		{
 			using var conn = DBConnection.Instance.GetConnection();
 			DBParameters parameters = new();
@@ -160,11 +160,14 @@ namespace TaskelDB.DAO
 			{
 				using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmail, parameters);
 				using var reader = cmd.ExecuteReader();
-				return MapSingle(reader);
+				if (reader.Read())
+				{
+                    return MapSingle(reader);
+                }				
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error getting email: {ex.Message}");
+				Console.WriteLine($"Error getting email by address: {ex.Message}");
 			}
 			return null;
 		}

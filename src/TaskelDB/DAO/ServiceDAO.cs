@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
-using TaskelDB.Models;
+using TaskelDB.Models.Service;
+using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
@@ -14,7 +15,7 @@ namespace TaskelDB.DAO
 			    ser_name, 
                 current_price, 
                 creation, 
-                update, 
+                `update`, 
                 isShown, 
                 short_description, 
                 long_description, 
@@ -31,7 +32,7 @@ namespace TaskelDB.DAO
                 ser_name, 
                 current_price, 
                 creation,
-                update, 
+                `update`, 
                 isShown, 
                 short_description, 
                 long_description, 
@@ -63,7 +64,7 @@ namespace TaskelDB.DAO
                  services 
              WHERE id = @id";
 
-        private static readonly string sqlUpdateCmd =@"
+        private static readonly string sqlUpdateCmd = @"
             UPDATE 
                 services 
             SET 
@@ -72,16 +73,16 @@ namespace TaskelDB.DAO
                 ser_name= @ser_name, 
                 current_price= @current_price, 
                 creation= @creation, 
-                update= @update, isShown= @isShown, 
+                `update`= @update, isShown= @isShown, 
+                isShown= @isShown, 
                 short_description= @short_description, 
                 long_description= @long_description,link= @link, 
                 isDeleted= @isDeleted, 
-                category= @category
-                current_credits = @current_credits, 
-                isAdmin = @isAdmin
+                category= @category,
+                current_price= @current_price
             WHERE id = @id";
 
-        private static readonly string sqlGetByUserCmd =@"
+        private static readonly string sqlGetByUserCmd = @"
             SELECT 
                 id, 
                 user_id, 
@@ -99,7 +100,31 @@ namespace TaskelDB.DAO
                 services
             WHERE user_id = @user_id";
 
-        private static readonly string sqlGetByPage = @"
+        private static readonly string sqlGetByUserOnPageCmd = @"
+            SELECT 
+                id, 
+                user_id, 
+                ser_name, 
+                current_price, 
+                creation, 
+                `update`, 
+                isShown, 
+                short_description, 
+                long_description, 
+                link, 
+                isDeleted, 
+                category 
+            FROM 
+                services
+            WHERE user_id = @user_id
+            
+            LIMIT @limit
+			OFFSET @offset;";
+
+        private static readonly string sqlGetCountCmd = @"
+            SELECT count(id) as service_count from services";
+
+        private static readonly string sqlGetPageCmd = @"
 			SELECT
 				services.id,
 				ser_name,
@@ -123,6 +148,34 @@ namespace TaskelDB.DAO
 				LEFT JOIN service_categories ON service_categories.id = category
         
 			LIMIT @limit
+			OFFSET @offset";
+
+        private static readonly string sqlGetPageCategoryCmd = @"
+			SELECT
+				services.id,
+				ser_name,
+				current_price,
+				creation,
+				`update`,
+				isShown,
+				short_description,
+				long_description,
+				link,
+				isDeleted,
+				category,
+
+				service_categories.category_name,
+
+				users.id as user_id,
+				users.name as user_name
+        
+			FROM services
+				LEFT JOIN users ON services.user_id = users.id
+				LEFT JOIN service_categories ON service_categories.id = category
+
+            WHERE
+            category = @category
+            LIMIT @limit
 			OFFSET @offset";
         #endregion
 
@@ -214,14 +267,14 @@ namespace TaskelDB.DAO
             {
                 ID = reader.GetInt32("id"),
                 User_ID = reader.GetInt32("user_id"),
-                Ser_Name = reader.GetString("ser_name"),
+                Ser_Name = reader.TryGetString("ser_name"),
                 Current_Price = reader.GetInt32("current_price"),
                 Creation = reader.GetDateTime("creation"),
-                Update = reader.GetDateTime("update"),
+                Update = reader.TryGetDateTime("update"),
                 IsShown = reader.GetBoolean("isShown"),
-                Short_Description = reader.GetString("short_description"),
-                Long_Description = reader.GetString("long_description"),
-                Link = reader.GetString("link"),
+                Short_Description = reader.TryGetString("short_description"),
+                Long_Description = reader.TryGetString("long_description"),
+                Link = reader.TryGetString("link"),
                 IsDeleted = reader.GetBoolean("isDeleted"),
                 Category = reader.GetInt32("category")
             };
@@ -251,12 +304,12 @@ namespace TaskelDB.DAO
                 User_ID = reader.GetInt32("user_id"),
                 Ser_Name = reader.GetString("ser_name"),
                 Current_Price = reader.GetInt32("current_price"),
-                Creation = reader.ReadDateTime("creation"),
-                Update = reader.ReadDateTime("update"),
+                Creation = reader.TryGetDateTime("creation"),
+                Update = reader.TryGetDateTime("update"),
                 IsShown = reader.GetBoolean("isShown"),
-                Short_Description = reader.ReadString("short_description"),
-                Long_Description = reader.ReadString("long_description"),
-                Link = reader.ReadString("link"),
+                Short_Description = reader.TryGetString("short_description"),
+                Long_Description = reader.TryGetString("long_description"),
+                Link = reader.TryGetString("link"),
                 IsDeleted = reader.GetBoolean("isDeleted"),
                 Category = reader.GetInt32("category"),
 
@@ -273,7 +326,7 @@ namespace TaskelDB.DAO
                 }
             };
         }
-        private List<ServiceModel> MapAllPage(MySqlDataReader reader)
+        private static List<ServiceModel> MapAllPage(MySqlDataReader reader)
         {
             List<ServiceModel> list = [];
             while (reader.Read())
@@ -285,9 +338,21 @@ namespace TaskelDB.DAO
         #endregion
 
         /// <summary>
+        /// Returns count of all services.
+        /// </summary>
+        public static int GetServicesCount()
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            using var cmd = DBUtility.CreateCommand(conn, sqlGetCountCmd);
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.GetInt32("service_count");
+        }
+
+        /// <summary>
         /// Returns all services that are owned by specified user from the database.
         /// </summary>
-        public List<ServiceModel> GetAllByUser(long userID)
+        public List<ServiceModel> GetAllServicesByUser(long userID)
         {
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
@@ -308,9 +373,34 @@ namespace TaskelDB.DAO
         }
 
         /// <summary>
+        /// Returns all services that are owned by specified user from the database.
+        /// </summary>
+        public List<ServiceModel> GetAllServicesByUserOnPage(long userID, int pageNumber, int entriesPerPage)
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            DBParameters parameters = new();
+            parameters.AddParameter("user_id", userID);
+            parameters.AddParameter("offset", pageNumber * entriesPerPage);
+            parameters.AddParameter("limit", entriesPerPage);
+
+            try
+            {
+                using var cmd = DBUtility.CreateCommand(conn, sqlGetByUserOnPageCmd, parameters);
+                using var reader = cmd.ExecuteReader();
+                return MapAll(reader);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting services by user: {ex.Message}");
+            }
+
+            return [];
+        }
+
+        /// <summary>
         /// Returns all services on a specific page.
         /// </summary>
-        public List<ServiceModel> GetByPage(int pageNumber, int entriesPerPage)
+        public static List<ServiceModel> GetServicesOnPage(int pageNumber, int entriesPerPage)
         {
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
@@ -319,7 +409,32 @@ namespace TaskelDB.DAO
 
             try
             {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetByPage, parameters);
+                using var cmd = DBUtility.CreateCommand(conn, sqlGetPageCmd, parameters);
+                using var reader = cmd.ExecuteReader();
+                return MapAllPage(reader);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting services by page: {ex.Message}");
+            }
+
+            return [];
+        }
+
+        /// <summary>
+        /// Returns all services on a specific page.
+        /// </summary>
+        public static List<ServiceModel> GetServicesOnCategoryPage(int pageNumber, int entriesPerPage, ServiceCategory category)
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            DBParameters parameters = new();
+            parameters.AddParameter("offset", pageNumber * entriesPerPage);
+            parameters.AddParameter("limit", entriesPerPage);
+            parameters.AddParameter("category", (int)category);
+
+            try
+            {
+                using var cmd = DBUtility.CreateCommand(conn, sqlGetPageCategoryCmd, parameters);
                 using var reader = cmd.ExecuteReader();
                 return MapAllPage(reader);
             }

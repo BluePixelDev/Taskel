@@ -1,0 +1,21 @@
+﻿@using TaskelDB.DAO;
+@using TaskelDB.Models.Service;
+
+@page "/category/sound/"
+@page "/category/sound/{PageID:int}"
+
+<div class="content-wrapper">
+    <h3 class="text-align-center">Sound</h3>
+    <ServicesList Services=services />
+</div>
+
+
+@code {
+    [Parameter] public int PageID { get; set; } = 0;
+    ServiceModel[] services = [];
+
+    protected override void OnInitialized()
+    {
+        services = ServiceDAO.GetServicesOnCategoryPage(PageID, 250, ServiceCategory.Sound).ToArray();
+    }
+}

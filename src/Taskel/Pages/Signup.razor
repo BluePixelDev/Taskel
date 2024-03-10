@@ -1,8 +1,7 @@
 ﻿@page "/signup"
 @using Taskel.Shared.Layouts;
-@using Taskel.Services.Authorization;
-@using Taskel.Services.Authorization.Exceptions;
-@using System.Text.RegularExpressions;
+@using Taskel.Authentication;
+@using Taskel.Authentication.Exceptions;
 
 @layout ClearLayout;
 @inject AuthService authService;
@@ -49,7 +48,7 @@
 
     private string warningText = "";
 
-    public void CreateUser()
+    public async Task CreateUser()
     {
         if (string.IsNullOrEmpty(usernameInput))
         {
@@ -73,9 +72,9 @@
                 warningText = "Username cannot be empty!";
                 return;
             }
-            if (authService.Register(usernameInput, emailInput, passwordInput))
+            if (await authService.Register(usernameInput, emailInput, passwordInput))
             {
-                NavManager.NavigateTo("/");
+                NavManager.NavigateTo("/", true);
             }
         }
         catch (AuthRegisterException e)

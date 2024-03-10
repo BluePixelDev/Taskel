@@ -1,0 +1,12 @@
+﻿@using TaskelDB.Models.Service;
+
+<div class="services-wrapper">
+    @foreach (ServiceModel serviceModel in Services)
+    {
+        <ServiceCard serviceModel=serviceModel />
+    }
+</div>
+
+@code {
+    [Parameter] public ServiceModel[] Services { get; set; } = [];
+}

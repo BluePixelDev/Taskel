@@ -1,4 +1,4 @@
-﻿namespace Taskel.Services.Authorization.Exceptions
+﻿namespace Taskel.Authentication.Exceptions
 {
     public enum AuthLoginExceptionType
     {

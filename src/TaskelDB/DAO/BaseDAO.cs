@@ -54,7 +54,7 @@ namespace TaskelDB.DAO
         /// <summary>
         /// Returns mapped model with specified id.
         /// </summary>
-		protected T GetElement(long id, string sqlCommand)
+		protected T? GetElement(long id, string sqlCommand)
         {
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
@@ -62,7 +62,14 @@ namespace TaskelDB.DAO
 
             using var cmd = DBUtility.CreateCommand(conn, sqlCommand, parameters);
             using var reader = cmd.ExecuteReader();
-            return MapSingle(reader);
+            if (reader.Read())
+            {
+                return MapSingle(reader);
+            }
+            else
+            {
+                return default;
+            }
         }
 
         /// <summary>
@@ -83,7 +90,7 @@ namespace TaskelDB.DAO
 			using var conn = DBConnection.Instance.GetConnection();
 			using var cmd = DBUtility.CreateCommand(conn, sqlCommand);
 			using var reader = cmd.ExecuteReader();
-			return MapAll(reader);
+            return MapAll(reader);
 		}
 
 
@@ -101,7 +108,7 @@ namespace TaskelDB.DAO
 		}
 
         /// <summary>
-        /// Maps singular entry to a instance of a model.
+        /// Maps singular entry to an instance of a model.
         /// </summary>
 		protected abstract T MapSingle(MySqlDataReader reader);
         /// <summary>

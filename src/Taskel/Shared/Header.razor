@@ -1,60 +1,66 @@
-﻿<div class="header">
+﻿@using Taskel.Authentication;
+
+@inject AuthService authService;
+
+<div class="header">
     <a class="logo" href="/"></a>
     <div class="navigation">
 
-        <a href="/">
+        <a href="/" class="navigation-item">
             Home
+        </a>
+
+        <a href="/explore" class="navigation-item">
+            Explore
         </a>
 
         <div class="dropdown">
             <button class="dropbtn">Categories</button>
             <div class="dropdown-content">
 
-                <div class="dropdown-item">
+                <a class="dropdown-item" href="/category/art">
                     <img class="dropdown-item-icon" src="/Images/Icons/Category/Texture_Icon.png" />
-                    <a href="/category/art">Art</a>
-                </div>
+                    <p class="category-name">Art</p>
+                </a>
 
-                <div class="dropdown-item">
+                <a class="dropdown-item" href="/category/music">
                     <img class="dropdown-item-icon" src="/Images/Icons/Category/Music_Icon.png" />
-                    <a href="/category/music">Music</a>
-                </div>
+                    <p class="category-name">Music</p>
+                </a>
 
-                <div class="dropdown-item">
+                <a class="dropdown-item" href="/category/sound">
                     <img class="dropdown-item-icon" src="/Images/Icons/Category/Sound_Icon.png" />
-                    <a href="/category/sound">Sound</a>
-                </div>
+                    <p class="category-name">Sound</p>
+                </a>
 
-                <div class="dropdown-item">
+                <a class="dropdown-item" href="/category/models">
                     <img class="dropdown-item-icon" src="/Images/Icons/Category/Model_Icon.png" />
-                    <a href="/category/models">Models</a>
-                </div>
+                    <p class="category-name">Models</p>
+                </a>
+
+                <a class="dropdown-item" href="/category/code">
+                    <img class="dropdown-item-icon" src="/Images/Icons/Category/Code_Icon.png" />
+                    <p class="category-name">Code</p>
+                </a>
             </div>
         </div>
 
-        <a href="/explore">
-            Explore
-        </a>
+        <AuthorizeView>
+            <Authorized>
+                <a href="/dashboard" class="navigation-item" @onclick=ToggleMenu>
+                    Dashboard
+                </a>
 
-        @if (!isLoggedIn)
-        {
-            <a href="/signup" class="header-register">
-                Sign Up
-            </a>
-        }
-        else
-        {
-            <a href="/user" class="header-register">
-                Dashboard
-            </a>
-            <button class="header-logout" @onclick=Logout>
-                Log out
-            </button>
-
-            <p class="header-credits">
-                @userCredits K
-            </p>
-        }
+                <button class="navigation-item" @onclick=Logout>
+                    Logout
+                </button>
+            </Authorized>
+            <NotAuthorized>
+                <a href="/signup" class="navigation-item" @onclick=ToggleMenu>
+                    Sign Up
+                </a>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 
     <div class="mobile-navigation @GetMenuClass()">
@@ -62,19 +68,22 @@
             Home
         </a>
 
-        @if (!isLoggedIn)
-        {
+        <AuthorizeView>
+            <Authorized>
+                <a href="/dashboard" class="navigation-item" @onclick=ToggleMenu>
+                    Dashboard
+                </a>
 
-            <a href="/signup" class="header-register" @onclick=ToggleMenu>
-                Sign Up
-            </a>
-        }
-        else
-        {
-            <a href="/user" class="header-register" @onclick=ToggleMenu>
-                Dashboard
-            </a>
-        }
+                <button class="navigation-item" @onclick=Logout>
+                    Logout
+                </button>
+            </Authorized>
+            <NotAuthorized>
+                <a href="/signup" class="navigation-item" @onclick=ToggleMenu>
+                    Sign Up
+                </a>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 
     <button class="hamburger @GetMenuClass()" @onclick="ToggleMenu">
@@ -88,17 +97,10 @@
 
 @code {
     private bool isMenuShown;
-    private bool isLoggedIn;
-    private int userCredits = 0;
 
-    protected override void OnInitialized()
+    private async Task Logout()
     {
-
-    }
-
-    private void Logout()
-    {
-
+        await authService.Logout();
     }
 
     private void ToggleMenu()

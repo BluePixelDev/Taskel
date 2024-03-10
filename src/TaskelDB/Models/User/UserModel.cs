@@ -1,6 +1,6 @@
 ﻿using TaskelDB.Interfaces;
 
-namespace TaskelDB.Models
+namespace TaskelDB.Models.User
 {
     /// <summary>
     /// A data model describbing a User.
