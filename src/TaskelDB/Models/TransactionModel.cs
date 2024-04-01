@@ -1,4 +1,6 @@
 ﻿using TaskelDB.Interfaces;
+using TaskelDB.Models.Service;
+using TaskelDB.Models.User;
 
 namespace TaskelDB.Models
 {
@@ -14,6 +16,11 @@ namespace TaskelDB.Models
         public TimeOnly Send_Time { get; set; }
         public int Cost { get; set; }
         public int Service_ID { get; set; }
+
+        public UserModel? SendingUser { get; set; }
+        public UserModel? ReceivingUser { get; set; }
+        public ServiceModel? Service { get; set; }
+
 
         public override string ToString()
         {

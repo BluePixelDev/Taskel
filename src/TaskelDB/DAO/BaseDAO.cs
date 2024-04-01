@@ -1,4 +1,5 @@
 ﻿using MySqlConnector;
+using System.Xml.Linq;
 using TaskelDB.Interfaces;
 using TaskelDB.Utility;
 
@@ -41,7 +42,6 @@ namespace TaskelDB.DAO
         /// Deletes row with given id.
         /// </summary>
 		protected void DeleteElement(long id, string sqlCommand)
-#pragma warning restore CA1822 // Označení členů jako statických
 		{
 			using var conn = DBConnection.Instance.GetConnection();
 			DBParameters parameters = new();

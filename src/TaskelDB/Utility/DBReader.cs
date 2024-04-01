@@ -51,5 +51,14 @@ namespace TaskelDB.Utility
             int columnIndex = reader.GetOrdinal(name);
             return !reader.IsDBNull(columnIndex) ? reader.GetDateTime(columnIndex) : DateTime.UnixEpoch;
         }
+
+        /// <summary>
+        /// Attempts to read TimeOnly. Returns min time if the value is null.
+        /// </summary>
+        public static TimeOnly TryGetTimeOnly(this MySqlDataReader reader, string name)
+        {
+            int columnIndex = reader.GetOrdinal(name);
+            return !reader.IsDBNull(columnIndex) ? reader.GetTimeOnly(columnIndex) : TimeOnly.MinValue;
+        }
     }
 }
