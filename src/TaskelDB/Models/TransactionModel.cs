@@ -17,11 +17,6 @@ namespace TaskelDB.Models
         public int Cost { get; set; }
         public int Service_ID { get; set; }
 
-        public UserModel? SendingUser { get; set; }
-        public UserModel? ReceivingUser { get; set; }
-        public ServiceModel? Service { get; set; }
-
-
         public override string ToString()
         {
             return $"ID: {ID}, Receiver_ID: {Receiver_ID}, Sender_ID: {Sender_ID}, Send_Date: {Send_Date}, Send_Time: {Send_Time}, Cost: {Cost}, Service_ID: {Service_ID}";

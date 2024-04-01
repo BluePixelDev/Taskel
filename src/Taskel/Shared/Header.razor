@@ -1,4 +1,7 @@
 ﻿@using Taskel.Authentication;
+@using System.Security.Claims;
+@using TaskelDB.DAO;
+@using TaskelDB.Models.User;
 
 @inject AuthService authService;
 
@@ -47,6 +50,7 @@
 
         <AuthorizeView>
             <Authorized>
+                
                 <a href="/dashboard" class="navigation-item" @onclick=ToggleMenu>
                     Dashboard
                 </a>
@@ -54,6 +58,11 @@
                 <button class="navigation-item" @onclick=Logout>
                     Logout
                 </button>
+
+                <a class="navigation-item" href="/shop">
+                    @credits K
+                </a>
+
             </Authorized>
             <NotAuthorized>
                 <a href="/signup" class="navigation-item" @onclick=ToggleMenu>
@@ -70,6 +79,7 @@
 
         <AuthorizeView>
             <Authorized>
+                <a>Credits @credits</a>
                 <a href="/dashboard" class="navigation-item" @onclick=ToggleMenu>
                     Dashboard
                 </a>
@@ -96,7 +106,37 @@
 <div class="header-space"></div>
 
 @code {
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
     private bool isMenuShown;
+    private int credits;
+    private int userID;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState != null)
+        {
+            var authState = await authenticationState;
+            if (authState.User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
+                userID = Convert.ToInt32(userIdClaim?.Value);
+
+                UserDAO userDAO = new UserDAO();
+                try
+                {
+                    UserModel? userModel = userDAO.Get(userID);
+                    if(userModel != null)
+                    {
+                        credits = userModel.Current_Credits;
+                    }              
+                }
+                catch(Exception)
+                {
+                    
+                }
+            }
+        }
+    }
 
     private async Task Logout()
     {

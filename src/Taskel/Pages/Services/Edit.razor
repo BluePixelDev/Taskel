@@ -54,7 +54,7 @@
     private int userID;
     [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (authenticationState != null)
         {
@@ -63,6 +63,10 @@
             {
                 var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
                 userID = Convert.ToInt32(userIdClaim?.Value);
+            }
+            else
+            {
+                NavManager.NavigateTo("/signup");
             }
         }
         SetInitialData();

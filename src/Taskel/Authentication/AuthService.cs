@@ -40,7 +40,7 @@ namespace Taskel.Authentication
                 await authProvider.UpdateAuthenticationState(new UserSession()
                 {
                     UserID = userModel.ID,
-                    Username = userModel.Name,               
+                    Username = userModel.Name,
                 });
             }
             else
@@ -85,7 +85,7 @@ namespace Taskel.Authentication
                 long userID = userDAO.Create(new UserModel()
                 {
                     Name = name,
-                    HashedPassword = HashString(password)
+                    HashedPassword = HashString(password),
                 });
 
                 //Creates new email.

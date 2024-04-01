@@ -122,7 +122,17 @@ namespace TaskelDB.DAO
 			OFFSET @offset;";
 
         private static readonly string sqlGetCountCmd = @"
-            SELECT count(id) as service_count from services";
+            SELECT
+                count(id) as services_count
+            FROM
+                services;";
+
+        private static readonly string sqlGetCountCategoryCmd = @"
+            SELECT
+                count(id) as services_count
+            FROM
+                services
+            WHERE category = @service_category;";
 
         private static readonly string sqlGetPageCmd = @"
 			SELECT
@@ -146,7 +156,7 @@ namespace TaskelDB.DAO
 			FROM services
 				LEFT JOIN users ON services.user_id = users.id
 				LEFT JOIN service_categories ON service_categories.id = category
-        
+
 			LIMIT @limit
 			OFFSET @offset";
 
@@ -346,7 +356,20 @@ namespace TaskelDB.DAO
             using var cmd = DBUtility.CreateCommand(conn, sqlGetCountCmd);
             using var reader = cmd.ExecuteReader();
             reader.Read();
-            return reader.GetInt32("service_count");
+            return reader.GetInt32("services_count");
+        }
+        /// <summary>
+        /// Returns count of all services with given category.
+        /// </summary>
+        public static int GetServicesCount(ServiceCategory category)
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            DBParameters parameters = new();
+            parameters.AddParameter("service_category", (int)category);
+            using var cmd = DBUtility.CreateCommand(conn, sqlGetCountCategoryCmd, parameters);
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.GetInt32("services_count");
         }
 
         /// <summary>
@@ -425,7 +448,7 @@ namespace TaskelDB.DAO
         /// Returns all services on a specific page.
         /// </summary>
         public static List<ServiceModel> GetServicesOnCategoryPage(int pageNumber, int entriesPerPage, ServiceCategory category)
-        {
+        {        
             using var conn = DBConnection.Instance.GetConnection();
             DBParameters parameters = new();
             parameters.AddParameter("offset", pageNumber * entriesPerPage);

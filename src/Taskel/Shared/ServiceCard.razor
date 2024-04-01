@@ -16,7 +16,7 @@
 </div>
 
 @code {
-    [Parameter] public ServiceModel? serviceModel { get; set; }
+    [Parameter] public ServiceModel? ServiceModel { get; set; }
 
     private long serviceID = -1;
     private string serviceName = "";
@@ -24,12 +24,12 @@
     private string serviceDescription = "";
     private int servicePrice;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        serviceID = serviceModel != null ? serviceModel.ID : -1;
-        serviceName = serviceModel != null ? serviceModel.Ser_Name : "";
-        serviceOwner = serviceModel != null ? "" + serviceModel?.UserModel?.Name : "";
-        serviceDescription = serviceModel != null ? serviceModel.Short_Description : "";
-        servicePrice = serviceModel != null ? serviceModel.Current_Price : 0;
+        serviceID = ServiceModel != null ? ServiceModel.ID : -1;
+        serviceName = ServiceModel != null ? ServiceModel.Ser_Name : "";
+        serviceOwner = ServiceModel != null ? "" + ServiceModel?.UserModel?.Name : "";
+        serviceDescription = ServiceModel != null ? ServiceModel.Short_Description : "";
+        servicePrice = ServiceModel != null ? ServiceModel.Current_Price : 0;
     }
 }

@@ -11,6 +11,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.35);
+    padding-left: 10px;
 }
 
     .header .navigation {
@@ -24,7 +25,6 @@
     .header .logo {
         height: 50px;
         width: 100px;
-        margin-left: 10px;
         background-image: url("/Images/Logos/Logo.png");
         background-position: center;
         background-size: contain;
@@ -36,15 +36,6 @@
     min-height: var(--header-height);
     width: auto;
 }
-
-/*NORMAL - CREDITS TEXT*/
-.header-credits {
-    color: var(--secondary-color);
-    font-size: 1em;
-    text-align: center;
-    margin: 0;
-}
-/*#endregion*/
 
 /*#region NAVIGATION*/
 .navigation {

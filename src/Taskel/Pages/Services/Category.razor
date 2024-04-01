@@ -2,20 +2,25 @@
 @using TaskelDB.DAO;
 @using TaskelDB.Models.Service;
 
-@page "/explore"
+@page "/category/{CategoryName}"
 @inject NavigationManager navManager;
 
 <div class="content-wrapper">
-    <h3 class="text-align-center">Explore</h3>
+    <h3 class="text-align-center">@category</h3>
     <ServicesList Services=services />
-    <PageNav BasePath="/explore" Pages=@pageCount Max=1000 CurrentPage=@pageID />
+    <PageNav BasePath="@($"/category/{CategoryName}")" Pages=@pageCount Max=3 CurrentPage=@pageID />
 </div>
 
+
 @code {
+    [Parameter] public string CategoryName { get; set; } = "";
     private int pageCount = 0;
-    private int pageID = 0;
-    private int prevPageID = -1;
+
+    public int pageID { get; set; } = 0;
+    public int prevPageID { get; set; } = -1;
+
     private ServiceModel[] services = [];
+    private ServiceCategory category = ServiceCategory.Uncategorized;
 
     protected override void OnInitialized()
     {
@@ -23,26 +28,33 @@
         navManager.LocationChanged += HandleLocationChanged;
         base.OnInitialized();
     }
-
     protected void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         UpdatePage();
     }
 
-    private void UpdatePage()
+    protected void UpdatePage()
     {
+        if (Enum.TryParse(CategoryName, true, out ServiceCategory result))
+        {
+            category = result;
+        }
+        else
+        {
+            navManager.NavigateTo("/404");
+            return;
+        }
+
         var uri = navManager.ToAbsoluteUri(navManager.Uri);
         var queryStrings = QueryHelpers.ParseQuery(uri.Query);
         if (queryStrings.TryGetValue("p", out var page))
         {
             pageID = Convert.ToInt32(page);
         }
-        if (pageID != prevPageID)
-        {
-            pageCount = ServiceDAO.GetServicesCount() / 50;
-            services = ServiceDAO.GetServicesOnPage(pageID, 50).ToArray();
-            prevPageID = pageID;
-        }
+
+        pageCount = ServiceDAO.GetServicesCount(category) / 10;
+        pageID = pageCount < pageID ? pageCount - 1 : pageID;
+        services = ServiceDAO.GetServicesOnCategoryPage(pageID, 10, category).ToArray();
 
         StateHasChanged();
     }

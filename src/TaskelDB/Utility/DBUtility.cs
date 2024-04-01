@@ -48,5 +48,15 @@ namespace TaskelDB.Utility
             using var cmd = CreateCommand(connection, "SELECT LAST_INSERT_ID()");
             return cmd.ExecuteScalar();
         }
+
+        /// <summary>
+        /// Returns last inserted ID.
+        /// </summary>
+        public static object? GetLastIDTransaction(MySqlConnection connection, MySqlTransaction transaction)
+        {
+            using var cmd = CreateCommand(connection, "SELECT LAST_INSERT_ID()");
+            cmd.Transaction = transaction;
+            return cmd.ExecuteScalar();
+        }
     }
 }

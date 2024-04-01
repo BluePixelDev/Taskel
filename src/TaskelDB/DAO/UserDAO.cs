@@ -53,6 +53,14 @@ namespace TaskelDB.DAO
 			FROM users
 				LEFT JOIN email_addresses ON email_addresses.user_id = users.id
 			WHERE email_address = @email_address";
+
+		private static readonly string sqlAddCreditsCmd = @"
+			UPDATE 
+				users
+			SET 
+				current_credits = current_credits + @transfer_amount
+			WHERE 
+				id = @user_id;";
         #endregion
 
         #region CORE DAO
@@ -61,32 +69,16 @@ namespace TaskelDB.DAO
         /// </summary>
         public long Create(UserModel user)
 		{
-			try
-			{
-				return CreateElement(user, sqlCreateCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error creating user: {ex.Message}");
-			}
-			return -1;
-		}
+            return CreateElement(user, sqlCreateCmd);
+        }
 
 		/// <summary>
 		/// Returns user from the database with target id.
 		/// </summary>
 		public UserModel? Get(long id)
 		{
-			try
-			{
-				return GetElement(id, sqlGetCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error getting user: {ex.Message}");
-			}
-			return null;
-		}
+            return GetElement(id, sqlGetCmd);
+        }
 
 		/// <summary>
 		/// Returns all users from the database.
@@ -110,31 +102,16 @@ namespace TaskelDB.DAO
 		/// </summary>
 		public void Update(UserModel user)
 		{
-			try
-			{
-				UpdateElement(user, sqlUpdateCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error updating user with id {user.ID}: {ex.Message}");
-			}
-		}
+            UpdateElement(user, sqlUpdateCmd);
+        }
 
 		/// <summary>
 		/// Deletes user with given id from the database
 		/// </summary>
 		public void Delete(long id)
 		{
-			try
-			{
-				DeleteElement(id, sqlDeleteCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error deleting user with id {id}: {ex.Message}");
-			}
-
-		}
+            DeleteElement(id, sqlDeleteCmd);
+        }
 
         #endregion
 
@@ -170,20 +147,24 @@ namespace TaskelDB.DAO
 			DBParameters parameters = new();
 			parameters.AddParameter("email_address", emailAddress);
 
-			try
-			{
-				using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmailCmd, parameters);
-				using var reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    return MapSingle(reader);
-                }
+            using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmailCmd, parameters);
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return MapSingle(reader);
             }
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error getting user: {ex.Message}");
-			}
-			return null;
+
+            return null;
 		}
+
+		public void AddCreditsTransaction(MySqlConnection conn, MySqlTransaction transaction, int userID, int amount)
+		{
+            DBParameters parameters = new();
+            parameters.AddParameter("user_id", userID);
+            parameters.AddParameter("transfer_amount", amount);
+            using var cmd = DBUtility.CreateCommand(conn, sqlAddCreditsCmd, parameters);
+			cmd.Transaction = transaction;
+			cmd.ExecuteNonQuery();
+        }
 	}
 }

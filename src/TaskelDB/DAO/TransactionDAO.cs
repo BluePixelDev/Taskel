@@ -1,6 +1,8 @@
 ﻿using MySqlConnector;
 using TaskelDB.Models;
 using TaskelDB.Models.Conversation;
+using TaskelDB.Models.Service;
+using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
@@ -54,40 +56,15 @@ namespace TaskelDB.DAO
         /// </summary>
         public long Create(TransactionModel transaction)
 		{
-            var conn = DBConnection.Instance.GetConnection();
-			MySqlTransaction mySqlTransaction = conn.BeginTransaction();
-            try
-			{
-				long elementID = CreateElement(transaction, sqlCreateCmd);
-				mySqlTransaction.Commit();
-				return elementID;
-			}
-			catch (Exception ex)
-			{
-				mySqlTransaction.Rollback();
-				Console.WriteLine($"Error creating transaction: {ex.Message}");
-			}
-			finally
-			{
-				conn.Dispose();
-			}
-			return -1;
-		}
+            return CreateElement(transaction, sqlCreateCmd);
+        }
 
 		/// <summary>
 		/// Returns transaction from the database with target id.
 		/// </summary>
 		public TransactionModel? Get(long id)
 		{
-            try
-			{
-				return GetElement(id, sqlGetCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error getting transaction: {ex.Message}");
-			}
-			return null;
+           return GetElement(id, sqlGetCmd);
 		}
 
 		/// <summary>
@@ -95,16 +72,7 @@ namespace TaskelDB.DAO
 		/// </summary>
 		public List<TransactionModel> GetAll()
 		{
-			try
-			{
-				return GetElements(sqlGetAllCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error getting all transactions: {ex.Message}");
-			}
-
-			return [];
+            return GetElements(sqlGetAllCmd);
 		}
 
 		/// <summary>
@@ -112,18 +80,7 @@ namespace TaskelDB.DAO
 		/// </summary>
 		public void Update(TransactionModel transaction)
 		{
-            using var conn = DBConnection.Instance.GetConnection();
-            MySqlTransaction mySqlTransaction = conn.BeginTransaction();
-            try
-			{
-				UpdateElement(transaction, sqlUpdateCmd);
-                mySqlTransaction.Commit();
-            }
-			catch (Exception ex)
-			{
-				mySqlTransaction.Rollback();
-                Console.WriteLine($"Error updating transaction with id {transaction.ID}: {ex.Message}");
-			}
+            UpdateElement(transaction, sqlUpdateCmd);
         }
 
 		/// <summary>
@@ -131,27 +88,20 @@ namespace TaskelDB.DAO
 		/// </summary>
 		public void Delete(long id)
 		{
-			try
-			{
-				DeleteElement(id, sqlDeleteCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error deleting transaction with id {id}: {ex.Message}");
-			}
-
-		}
+            DeleteElement(id, sqlDeleteCmd);
+        }
 
         #endregion
 
         #region MAPPING 
         protected override TransactionModel MapSingle(MySqlDataReader reader)
         {
-            return new TransactionModel()
-            {
-                ID = reader.GetInt32("id"),
+			return new TransactionModel()
+			{
+				ID = reader.GetInt32("id"),
 				Receiver_ID = reader.TryGetInt32("receiver_id"),
 				Sender_ID = reader.TryGetInt32("sender_id"),
+				Send_Date = reader.TryGetDateOnly("send_date"),
 				Send_Time = reader.TryGetTimeOnly("send_time"),
 				Cost = reader.TryGetInt32("cost"),
 				Service_ID = reader.TryGetInt32("service_id"),
@@ -163,10 +113,46 @@ namespace TaskelDB.DAO
 				.AddParameter("id", model.ID)
 				.AddParameter("receiver_id", model.Receiver_ID)
 				.AddParameter("sender_id", model.Sender_ID)
+				.AddParameter("send_date", model.Send_Date)
 				.AddParameter("send_time", model.Send_Time)
-				.AddParameter("cost", model.Cost)
+                .AddParameter("cost", model.Cost)
 				.AddParameter("service_id", model.Service_ID);
         }
         #endregion
+
+		public void AddCreditsToUser(int userID, int serviceID, int amount)
+		{
+            if (amount <= 0)
+            {
+                throw new Exception("The transfer amount can't be equal to zero or be negative!");
+            }
+
+            var conn = DBConnection.Instance.GetConnection();
+			var transaction = conn.BeginTransaction();
+
+			try
+			{
+                UserDAO userDAO = new();
+                userDAO.AddCreditsTransaction(conn, transaction, userID, amount);
+
+				TransactionModel model = new()
+				{
+					Receiver_ID = userID,
+					Sender_ID = 1,
+					Send_Date = DateOnly.FromDateTime(DateTime.UtcNow),
+					Send_Time = TimeOnly.FromDateTime(DateTime.UtcNow),
+					Cost = amount,
+					Service_ID = serviceID,
+				};
+
+				CreateElementTransaction(model, sqlCreateCmd, conn, transaction);
+				transaction.Commit();
+            }
+			catch (Exception ex)
+            {
+				Console.WriteLine(ex.Message);
+				transaction.Rollback();
+			}	
+        }
 	}
 }

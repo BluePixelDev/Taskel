@@ -3,11 +3,11 @@
 @using Taskel.Authentication;
 @using System.Security.Claims;
 
-@inject NavigationManager navManager;
-
 @page "/service/{ServiceID:int}"
 
+@inject NavigationManager navManager;
 @inherits ServicePage;
+
 <div class="content-wrapper">
     <div class="service-wrapper">
 
@@ -48,7 +48,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-
         if (authenticationState != null)
         {
             var authState = await authenticationState;

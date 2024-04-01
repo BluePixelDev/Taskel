@@ -3,7 +3,7 @@
 @using Taskel.Authentication;
 @using System.Security.Claims;
 
-@inject NavigationManager navManager;
+@inject NavigationManager NavManager;
 
 @page "/service/create"
 
@@ -47,7 +47,7 @@
     private int userID;
     [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (authenticationState != null)
         {
@@ -59,7 +59,7 @@
             }
             else
             {
-                navManager.NavigateTo("/signup");
+                NavManager.NavigateTo("/signup");
             }
         }
     }
@@ -95,7 +95,7 @@
         serviceModel.User_ID = userID;
         serviceModel.Category = (int)selectedCategory;   
         serviceDAO.Create(serviceModel);
-        navManager.NavigateTo("/dashboard");
+        NavManager.NavigateTo("/dashboard");
     }
 }
 

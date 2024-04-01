@@ -4,15 +4,10 @@ using System.Security.Claims;
 
 namespace Taskel.Authentication
 {
-    public class TaskelAuthenticationStateProvider : AuthenticationStateProvider
+    public class TaskelAuthenticationStateProvider(ProtectedSessionStorage sessionStorage) : AuthenticationStateProvider
     {
-        private readonly ProtectedSessionStorage _sessionStorage;
-        private ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
-
-        public TaskelAuthenticationStateProvider(ProtectedSessionStorage sessionStorage)
-        {
-            _sessionStorage = sessionStorage;
-        }
+        private readonly ProtectedSessionStorage _sessionStorage = sessionStorage;
+        private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
@@ -25,8 +20,8 @@ namespace Taskel.Authentication
 
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
                 [
-                     new (ClaimTypes.NameIdentifier, userSession.UserID.ToString()),
-                    new (ClaimTypes.Name, userSession.Username)
+                    new (ClaimTypes.NameIdentifier, userSession.UserID.ToString()),
+                    new (ClaimTypes.Name, userSession.Username),
                 ], "TaskelAuth"));
 
                 return await Task.FromResult(new AuthenticationState(claimsPrincipal));
@@ -47,7 +42,7 @@ namespace Taskel.Authentication
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new (ClaimTypes.NameIdentifier, userSession.UserID.ToString()),
-                    new (ClaimTypes.Name, userSession.Username)
+                    new (ClaimTypes.Name, userSession.Username),
                 }));
             }
             else
