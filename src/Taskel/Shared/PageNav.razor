@@ -1,0 +1,44 @@
+﻿
+<div class="page-nav">
+
+    @if (Pages > 1)
+    {
+        @if (CurrentPage != 0)
+        {
+            <a href="@BasePath?p=@(CurrentPage-1)">&lt;</a>
+        }
+
+        @for (int i = 0; i < targetPageCount; i++)
+        {
+            @if (i == CurrentPage)
+            {
+                <a href="@BasePath?p=@i" class="page-selected">@i</a>
+            }
+            else
+            {
+                <a href="@BasePath?p=@i">@i</a>
+            }
+        }
+
+        @if (CurrentPage + 1 < targetPageCount)
+        {
+            <a href="@BasePath?p=@(CurrentPage+1)">&gt;</a>
+        }
+    }
+
+</div>
+
+@code {
+    [Parameter] public string BasePath { get; set; } = "";
+    [Parameter] public int Pages { get; set; } = 0;
+    [Parameter] public int Max { get; set; } = 0;
+    [Parameter] public int CurrentPage { get; set; } = 0;
+
+    private int targetPageCount = 0;
+
+    protected override void OnParametersSet()
+    {
+        targetPageCount = Math.Min(Max, Pages);
+        StateHasChanged();
+    }
+}

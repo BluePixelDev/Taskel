@@ -1,0 +1,80 @@
+﻿@using TaskelDB.DAO;
+@using TaskelDB.Models.Service;
+@using Taskel.Authentication;
+@using System.Security.Claims;
+
+@page "/service/{ServiceID:int}"
+
+@inject NavigationManager navManager;
+@inherits ServicePage;
+
+<div class="content-wrapper">
+    <div class="service-wrapper">
+
+        <div class="service-upper-wrapper">
+            <h1 class="service-heading">@serviceModel?.Ser_Name</h1>
+            <h2 class="price-tag">@serviceModel?.Current_Price K</h2>
+        </div>
+        <div class="service-lower-wrapper">
+            <p class="label">Description</p>
+
+            <p>@serviceModel?.Long_Description</p>
+
+            <AuthorizeView>
+                <Authorized>
+
+                    @if (IsOwner())
+                    {
+                        <button class="submit-button" @onclick="EditService">Edit Service</button>
+                    }
+
+                </Authorized>
+            </AuthorizeView>
+
+            @if (!string.IsNullOrEmpty(WarningText))
+            {
+                <ErrorBox message=@WarningText />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    ServiceModel? serviceModel;
+    public string WarningText { get; set; } = "";
+
+    private int userID;
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState != null)
+        {
+            var authState = await authenticationState;
+            if (authState.User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
+                userID = Convert.ToInt32(userIdClaim?.Value);
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ServiceDAO serviceDAO = new();
+        serviceModel = serviceDAO.Get(ServiceID);
+    }
+
+    private void EditService()
+    {
+        if (IsOwner())
+        {
+            navManager.NavigateTo($"/service/edit/{serviceModel?.ID}");
+        }
+    }
+
+    private bool IsOwner()
+    {
+        return serviceModel?.User_ID == userID;
+    }
+}

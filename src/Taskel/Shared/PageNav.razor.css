@@ -1,0 +1,22 @@
+﻿.page-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 100%;
+}
+
+    .page-nav a {
+        text-decoration: none;
+        color: white;
+    }
+
+        .page-nav a:hover {
+            color: var(--tint-color)
+        }
+
+    .page-nav .page-selected {
+        color: red;
+    }

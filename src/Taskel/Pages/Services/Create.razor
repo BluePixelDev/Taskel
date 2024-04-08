@@ -1,0 +1,101 @@
+﻿@using TaskelDB.DAO;
+@using TaskelDB.Models.Service;
+@using Taskel.Authentication;
+@using System.Security.Claims;
+
+@inject NavigationManager NavManager;
+
+@page "/service/create"
+
+<div class="content-wrapper">
+    <div class="center-absolute">
+        <h2>Create</h2>
+        <p>Name:</p>
+        <input class="input-field" type="text" @bind="@serviceModel.Ser_Name" />
+        <p>Price:</p>
+        <input class="input-field" type="number" @bind="@serviceModel.Current_Price" />
+        <p>Short:</p>
+        <input class="input-field" type="text" @bind="@serviceModel.Short_Description" />
+        <p>Long:</p>
+        <textarea class="input-field" type="text" @bind="@serviceModel.Long_Description" />
+
+
+        <label for="selectedValue">Set Category:</label>
+        <InputSelect id="selectedValue" @bind-Value="selectedCategory">
+            @foreach (var option in Enum.GetValues(typeof(ServiceCategory)).Cast<ServiceCategory>())
+            {
+                <option value="@option">@option.ToString()</option>
+            }
+        </InputSelect>
+        <br />
+        <label for="visibility-value">Is Listed:</label>
+        <InputCheckbox id="visibility-value" @bind-Value="serviceModel.IsShown"> </InputCheckbox>
+
+        <p style="color:red;">@WarningText</p>
+        <button class="login-button" @onclick="CreateService">create</button>
+    </div>
+</div>
+
+
+@code {
+    private ServiceCategory selectedCategory { get; set; } = ServiceCategory.Uncategorized;
+
+    ServiceDAO serviceDAO = new();
+    ServiceModel serviceModel = new();
+    private string WarningText = "";
+
+    private int userID;
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (authenticationState != null)
+        {
+            var authState = await authenticationState;
+            if (authState.User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
+                userID = Convert.ToInt32(userIdClaim?.Value);
+            }
+            else
+            {
+                NavManager.NavigateTo("/signup");
+            }
+        }
+    }
+
+    public void CreateService()
+    {
+        if (serviceModel.Ser_Name.Length < 3)
+        {
+            WarningText = "Name is too short (min 3 characters)";
+            return;
+        }
+        if (serviceModel.Ser_Name.Length > 20)
+        {
+            WarningText = "Name is too long (max 20 characters)";
+            return;
+        }
+        if (serviceModel.Short_Description.Length > 50)
+        {
+            WarningText = "Short description is too long (max 50 characters)";
+            return;
+        }
+        if (serviceModel.Long_Description.Length > 500)
+        {
+            WarningText = "Long descrition is too long (max 500 characters)";
+            return;
+        }
+        if (serviceModel.Current_Price > int.MaxValue)
+        {
+            WarningText = "Price is over the maximum";
+            return;
+        }
+
+        serviceModel.User_ID = userID;
+        serviceModel.Category = (int)selectedCategory;   
+        serviceDAO.Create(serviceModel);
+        NavManager.NavigateTo("/dashboard");
+    }
+}
+

@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.WebUtilities
+@using TaskelDB.DAO;
+@using TaskelDB.Models.Service;
+
+@page "/explore"
+@inject NavigationManager navManager;
+
+<div class="content-wrapper">
+    <h3 class="text-align-center">Explore</h3>
+    <ServicesList Services=services />
+    <PageNav BasePath="/explore" Pages=@pageCount Max=1000 CurrentPage=@pageID />
+</div>
+
+@code {
+    private int pageCount = 0;
+    private int pageID = 0;
+    private int prevPageID = -1;
+    private ServiceModel[] services = [];
+
+    protected override void OnInitialized()
+    {
+        UpdatePage();
+        navManager.LocationChanged += HandleLocationChanged;
+        base.OnInitialized();
+    }
+
+    protected void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        UpdatePage();
+    }
+
+    private void UpdatePage()
+    {
+        var uri = navManager.ToAbsoluteUri(navManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("p", out var page))
+        {
+            pageID = Convert.ToInt32(page);
+        }
+        if (pageID != prevPageID)
+        {
+            pageCount = ServiceDAO.GetServicesCount() / 50;
+            services = ServiceDAO.GetServicesOnPage(pageID, 50).ToArray();
+            prevPageID = pageID;
+        }
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        navManager.LocationChanged -= HandleLocationChanged;
+    }
+}

@@ -1,150 +1,158 @@
 ﻿using MySqlConnector;
-using TaskelDB.Interfaces;
 using TaskelDB.Models;
+using TaskelDB.Models.Conversation;
+using TaskelDB.Models.Service;
+using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
 {
-    public class TransactionDAO : IDAO<TransactionModel>
-    {
-        private static readonly string sqlGetCmd =
-            "SELECT id, reciever_id, sender_id, send_date, send_time, cost, service_id " +
-            "FROM transactions " +
-            "WHERE id = @id";
+    public class TransactionDAO : BaseDAO<TransactionModel>
+	{
+        #region QUERIES
+        private static readonly string sqlGetCmd = @"
+			SELECT
+				id,
+				receiver_id,
+				sender_id,				
+				send_time,
+				cost,
+				service_id
+			FROM transactions
+			WHERE id = @id";
 
-        private static readonly string sqlGetAllCmd =
-            "SELECT id, reciever_id, sender_id, send_date, send_time, cost, service_id " +
-            "FROM transactions";
+        private static readonly string sqlGetAllCmd = @"
+			SELECT
+				id,
+				receiver_id,
+				sender_id,				
+				send_time,
+				cost,
+				service_id
+			FROM transactions";
 
-        private static readonly string sqlCreateCmd =
-            "INSERT INTO transactions " +
-            "VALUES (@id, @reciever_id, @sender_id, @send_date, @send_time, @cost, @service_id)";
+        private static readonly string sqlCreateCmd = @"
+			INSERT INTO transactions
+			VALUES (@id, @receiver_id, @sender_id, @send_date, @send_time, @cost, @service_id)";
 
-        private static readonly string sqlDeleteCmd =
-            "DELETE FROM transactions " +
-            "WHERE id = @id";
+        private static readonly string sqlDeleteCmd = @"
+			DELETE FROM transactions
+			WHERE id = @id";
 
-        private static readonly string sqlUpdateCmd =
-            "UPDATE transactions " +
-            "SET id = @id, reciever_id = @user_id, sender_id = @ser_name, send_date = @current_price, send_time = @creation, cost = @update, service_id = @isShown, " +
-            "current_credits = @current_credits, isAdmin = @isAdmin, " +
-            "short_description = @short_description, long_description = @long_description, link = @link, isDeleted = @isDeleted, category = @category " +
-            "WHERE id = @id";
+        private static readonly string sqlUpdateCmd = @"
+			UPDATE transaction
+			SET id = @id, 
+				receiver_id = @receiver_id, 
+				sender_id = @sender_id,
+				send_time = @send_time,
+				cost = @cost,
+				service_id = @service_id,
+			WHERE id = @id";
+        #endregion
 
         #region CORE DAO
         /// <summary>
-        /// Creates new service entry in the database.
+        /// Creates new Transaction entry in the database.
         /// </summary>
-        public long Create(TransactionModel service)
-        {
-            var parameters = DBMapper.MapToParameters(service);
-            using var conn = DBConnection.Instance.GetConnection();
-            MySqlTransaction transaction = conn.BeginTransaction();
-
-            try
-            {
-                using var cmd = DBUtility.CreateCommand(conn, sqlCreateCmd, parameters);
-                var res = cmd.ExecuteScalar();
-                var identity = DBUtility.GetLastID(conn);
-                transaction.Commit();
-                return identity != null ? Convert.ToInt64(identity) : -1;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating transaction: {ex.Message}");
-                transaction.Rollback();
-            }
-            return -1;
+        public long Create(TransactionModel transaction)
+		{
+            return CreateElement(transaction, sqlCreateCmd);
         }
 
-        /// <summary>
-        /// Returns service from the database with target id.
-        /// </summary>
-        public TransactionModel? Get(long id)
-        {
-            DBParemeters parameters = new();
-            parameters.AddParameter("id", id);
-            using var conn = DBConnection.Instance.GetConnection();
+		/// <summary>
+		/// Returns transaction from the database with target id.
+		/// </summary>
+		public TransactionModel? Get(long id)
+		{
+           return GetElement(id, sqlGetCmd);
+		}
 
-            try
-            {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetCmd, parameters);
-                using var reader = cmd.ExecuteReader();
-                return reader.MapSingle<TransactionModel>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting transaction: {ex.Message}");
-            }
-            return null;
+		/// <summary>
+		/// Returns all transactionss from the database.
+		/// </summary>
+		public List<TransactionModel> GetAll()
+		{
+            return GetElements(sqlGetAllCmd);
+		}
+
+		/// <summary>
+		/// Update row data of specified Transaction.
+		/// </summary>
+		public void Update(TransactionModel transaction)
+		{
+            UpdateElement(transaction, sqlUpdateCmd);
         }
 
-        /// <summary>
-        /// Returns all services from the database.
-        /// </summary>
-        public List<TransactionModel> GetAll()
-        {
-            using var conn = DBConnection.Instance.GetConnection();
-
-            try
-            {
-                using var cmd = DBUtility.CreateCommand(conn, sqlGetAllCmd);
-                using var reader = cmd.ExecuteReader();
-                return reader.MapAll<TransactionModel>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting all transaction: {ex.Message}");
-            }
-
-            return [];
+		/// <summary>
+		/// Deletes transaction with given id from the database
+		/// </summary>
+		public void Delete(long id)
+		{
+            DeleteElement(id, sqlDeleteCmd);
         }
 
-        /// <summary>
-        /// Updates row data of specified service.
-        /// </summary>
-        public void Update(TransactionModel service)
-        {
-            var data = DBMapper.MapToParameters(service);
-            using var conn = DBConnection.Instance.GetConnection();
-            MySqlTransaction transaction = conn.BeginTransaction();
+        #endregion
 
-            try
-            {
-                using var cmd = DBUtility.CreateCommand(conn, sqlUpdateCmd, data);
-                cmd.ExecuteScalar();
-                transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating transaction with id {service.ID}: {ex.Message}");
-                transaction.Rollback();
-            }
+        #region MAPPING 
+        protected override TransactionModel MapSingle(MySqlDataReader reader)
+        {
+			return new TransactionModel()
+			{
+				ID = reader.GetInt32("id"),
+				Receiver_ID = reader.TryGetInt32("receiver_id"),
+				Sender_ID = reader.TryGetInt32("sender_id"),
+				Send_Date = reader.TryGetDateOnly("send_date"),
+				Send_Time = reader.TryGetTimeOnly("send_time"),
+				Cost = reader.TryGetInt32("cost"),
+				Service_ID = reader.TryGetInt32("service_id"),
+            };
         }
-
-        /// <summary>
-        /// Deletes service with given id from the database
-        /// </summary>
-        public void Delete(long id)
+        protected override DBParameters MapToParameters(TransactionModel model)
         {
-            DBParemeters parameters = new();
-            parameters.AddParameter("id", id);
-            using var conn = DBConnection.Instance.GetConnection();
-            MySqlTransaction transaction = conn.BeginTransaction();
-
-            try
-            {
-                using var cmd = DBUtility.CreateCommand(conn, sqlDeleteCmd, parameters);
-                cmd.ExecuteScalar();
-                transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting transaction with id {id}: {ex.Message}");
-                transaction.Rollback();
-            }
-
+			return new DBParameters()
+				.AddParameter("id", model.ID)
+				.AddParameter("receiver_id", model.Receiver_ID)
+				.AddParameter("sender_id", model.Sender_ID)
+				.AddParameter("send_date", model.Send_Date)
+				.AddParameter("send_time", model.Send_Time)
+                .AddParameter("cost", model.Cost)
+				.AddParameter("service_id", model.Service_ID);
         }
         #endregion
-    }
+
+		public void AddCreditsToUser(int userID, int serviceID, int amount)
+		{
+            if (amount <= 0)
+            {
+                throw new Exception("The transfer amount can't be equal to zero or be negative!");
+            }
+
+            var conn = DBConnection.Instance.GetConnection();
+			var transaction = conn.BeginTransaction();
+
+			try
+			{
+                UserDAO userDAO = new();
+                userDAO.AddCreditsTransaction(conn, transaction, userID, amount);
+
+				TransactionModel model = new()
+				{
+					Receiver_ID = userID,
+					Sender_ID = 1,
+					Send_Date = DateOnly.FromDateTime(DateTime.UtcNow),
+					Send_Time = TimeOnly.FromDateTime(DateTime.UtcNow),
+					Cost = amount,
+					Service_ID = serviceID,
+				};
+
+				CreateElementTransaction(model, sqlCreateCmd, conn, transaction);
+				transaction.Commit();
+            }
+			catch (Exception ex)
+            {
+				Console.WriteLine(ex.Message);
+				transaction.Rollback();
+			}	
+        }
+	}
 }

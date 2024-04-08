@@ -11,7 +11,7 @@ namespace TaskelDB.Utility
         /// <summary>
         /// Creates new command from connection and inserts specified parameters into it.
         /// </summary>
-        public static MySqlCommand CreateCommand(MySqlConnection connection, string sql, DBParemeters parameters)
+        public static MySqlCommand CreateCommand(MySqlConnection connection, string sql, DBParameters parameters)
         {
             var cmd = connection.CreateCommand();
             cmd.CommandText = sql;
@@ -50,25 +50,13 @@ namespace TaskelDB.Utility
         }
 
         /// <summary>
-        /// Reads and maps single element.
+        /// Returns last inserted ID.
         /// </summary>
-        public static T? ReadAndMapSingle<T>(string sql, DBParemeters paremeters) where T : IElement 
-        { 
-            using var conn = DBConnection.Instance.GetConnection();
-            using var cmd = CreateCommand(conn, sql, paremeters);
-            using var reader = cmd.ExecuteReader();
-            return DBMapper.MapSingle<T>(reader);
-        }
-
-        /// <summary>
-        /// Reads and maps all elements
-        /// </summary>
-        public static List<T> ReadAndMapMultiple<T>(string sql, DBParemeters paremeters) where T : IElement
+        public static object? GetLastIDTransaction(MySqlConnection connection, MySqlTransaction transaction)
         {
-            using var conn = DBConnection.Instance.GetConnection();
-            using var cmd = CreateCommand(conn, sql, paremeters);
-            using var reader = cmd.ExecuteReader();
-            return DBMapper.MapAll<T>(reader);
+            using var cmd = CreateCommand(connection, "SELECT LAST_INSERT_ID()");
+            cmd.Transaction = transaction;
+            return cmd.ExecuteScalar();
         }
     }
 }

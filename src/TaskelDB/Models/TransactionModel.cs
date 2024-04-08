@@ -1,4 +1,6 @@
 ﻿using TaskelDB.Interfaces;
+using TaskelDB.Models.Service;
+using TaskelDB.Models.User;
 
 namespace TaskelDB.Models
 {

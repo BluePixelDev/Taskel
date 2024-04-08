@@ -11,6 +11,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.35);
+    padding-left: 10px;
 }
 
     .header .navigation {
@@ -24,7 +25,6 @@
     .header .logo {
         height: 50px;
         width: 100px;
-        margin-left: 10px;
         background-image: url("/Images/Logos/Logo.png");
         background-position: center;
         background-size: contain;
@@ -37,35 +37,28 @@
     width: auto;
 }
 
-/*NORMAL - CREDITS TEXT*/
-.header-credits {
-    color: var(--secondary-color);
-    font-size: 1em;
-    text-align: center;
-    margin: 0;
-}
-/*#endregion*/
-
 /*#region NAVIGATION*/
 .navigation {
     height: 100%;
     font-size: 14px;
 }
 
-    .navigation > a {
-        display: flex;
-        height: 100%;
-        align-items: center;
-        color: white;
-        vertical-align: middle;
-        text-decoration: none;
-        margin-top: auto;
-        padding: 0px 15px 0px 15px;
-    }
+.navigation-item {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    color: white;
+    vertical-align: middle;
+    text-decoration: none;
+    margin-top: auto;
+    padding: 0px 15px 0px 15px;
+    border: none;
+    background: none;
+}
 
-        .navigation > a:hover {
-            background-color: #3e8e41;
-        }
+.navigation-item:hover {
+    background-color: #3e8e41;
+}
 
 .dropdown {
     position: relative;
@@ -97,9 +90,12 @@
 
 .dropdown-item-icon {
     display: inline-block;
+    width: 30px;
+    height: 30px;
 }
 
-.dropdown-item > a {
+.dropdown-item > .category-name {
+    margin: 0;
     padding: 12px 16px;
     color: white;
     text-decoration: none;

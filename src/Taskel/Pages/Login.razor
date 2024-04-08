@@ -1,8 +1,8 @@
 ﻿@page "/login"
-@using Taskel.Services;
+@using Taskel.Authentication;
+@using Taskel.Authentication.Exceptions;
 @using Taskel.Shared.Layouts;
-@using Taskel.Services.Authorization;
-@using Taskel.Services.Authorization.Exceptions;
+@using System.Text.RegularExpressions;
 
 @layout ClearLayout;
 @inject AuthService authService;
@@ -38,19 +38,22 @@
     private string passwordInput = "";
     private string warningText = "";
 
-    public void LoginUser()
+    public async Task LoginUser()
     {
         try
         {
-            if (authService.Login(emailInput, passwordInput))
+            if (await authService.Login(emailInput, passwordInput))
             {
-                NavManager.NavigateTo("/");
+                NavManager.NavigateTo("/", true);
             }
         }
         catch (AuthLoginException e)
         {
             switch (e.ExceptionType)
             {
+                case AuthLoginExceptionType.InvalidEmail:
+                    warningText = "Invalid email adress.";
+                    break;
                 case AuthLoginExceptionType.EmailNotFound | AuthLoginExceptionType.UserNotFound:
                     warningText = "Could not found an account with matching credentials.";
                     break;
@@ -60,7 +63,6 @@
             }
         }
     }
-
 
     private string ConvertInputToString(object? input)
     {

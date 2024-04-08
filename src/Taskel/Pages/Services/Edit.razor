@@ -1,0 +1,143 @@
+﻿@using TaskelDB.DAO;
+@using TaskelDB.Models.Service;
+@using Taskel.Authentication;
+@using System.Security.Claims;
+
+@inject NavigationManager NavManager;
+
+@page "/service/edit/{ServiceID:int}"
+
+<div class="content-wrapper">
+    <div class="center-absolute">
+
+        <h2>Edit Service</h2>
+
+        <h3>name:</h3>
+        <input class="input-field" type="text" @bind="@serviceModel.Ser_Name" />
+
+        <h3>price:</h3>
+        <input class="input-field" type="number" @bind="@serviceModel.Current_Price" />
+
+        <h3>short:</h3>
+        <input class="input-field" type="text" @bind="@serviceModel.Short_Description" />
+
+        <h3>long:</h3>
+        <textarea class="input-field" type="text" @bind="@serviceModel.Long_Description" />
+
+        <label for="selectedValue">Set Category:</label>
+        <InputSelect id="selectedValue" @bind-Value="selectedCategory">
+            @foreach (var option in Enum.GetValues(typeof(ServiceCategory)).Cast<ServiceCategory>())
+            {
+                <option value="@option">@option.ToString()</option>
+            }
+        </InputSelect>
+        <br />
+        <label for="visibility-value">Set visibility:</label>
+        <InputCheckbox id="visibility-value" @bind-Value="serviceModel.IsShown"> </InputCheckbox>
+
+        <p style="color: red;">@warningText</p>
+        <button class="login-button" @onclick="EditService">Confirm</button>
+        <button class="login-button" @onclick="DeleteService">Delete Service</button>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public int serviceID { get; set; }
+
+    private ServiceCategory selectedCategory { get; set; } = ServiceCategory.Uncategorized;
+    private ServiceModel serviceModel = new();
+    private ServiceDAO serviceDAO = new();
+
+    private string warningText = "";
+
+    private int userID;
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (authenticationState != null)
+        {
+            var authState = await authenticationState;
+            if (authState.User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
+                userID = Convert.ToInt32(userIdClaim?.Value);
+            }
+            else
+            {
+                NavManager.NavigateTo("/signup");
+            }
+        }
+        SetInitialData();
+    }
+
+    private void SetInitialData()
+    {
+        ServiceModel? tempModel = serviceDAO.Get(serviceID);
+
+        if (tempModel != null)
+        {
+            serviceModel = tempModel;
+            selectedCategory = (ServiceCategory)serviceModel.Category;
+        }
+        else
+        {
+            NavManager.NavigateTo("/user");
+        }
+    }
+
+    private void DeleteService()
+    {
+        if (IsOwner())
+        {
+            serviceDAO.Delete(serviceID);
+            NavManager.NavigateTo("/dashboard");
+        }
+    }
+    private void EditService()
+    {
+        if (serviceModel.Ser_Name.Length < 3)
+        {
+            warningText = "name is too short (min 3 characters)";
+            return;
+        }
+        if (serviceModel.Ser_Name.Length > 20)
+        {
+            warningText = "name is too long (max 20 characters)";
+            return;
+        }
+        if (serviceModel.Short_Description.Length > 50)
+        {
+            warningText = "short description is too long (max 50 characters)";
+            return;
+        }
+        if (serviceModel.Long_Description.Length > 500)
+        {
+            warningText = "long descrition is too long (max 500 characters)";
+            return;
+        }
+        if (serviceModel.Current_Price > int.MaxValue)
+        {
+            warningText = "Price is over the maximum";
+            return;
+        }
+
+        if (IsOwner())
+        {
+            serviceModel.Update = DateTime.UtcNow;
+            serviceModel.Category = (int)selectedCategory;
+            serviceDAO.Update(serviceModel);
+            NavManager.NavigateTo("/dashboard");
+        }
+        else
+        {
+            warningText = "You are not the owner of this service.";
+        }
+    }
+
+    private bool IsOwner()
+    {
+        return serviceModel?.User_ID == userID;
+    }
+}
