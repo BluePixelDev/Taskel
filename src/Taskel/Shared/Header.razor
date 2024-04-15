@@ -1,12 +1,19 @@
 ﻿@using Taskel.Authentication;
+@using Taskel.Services;
 @using System.Security.Claims;
 @using TaskelDB.DAO;
 @using TaskelDB.Models.User;
 
 @inject AuthService authService;
+@inject CreditService creditService;
+@implements IDisposable;
 
 <div class="header">
-    <a class="logo" href="/"></a>
+    <a class="branding" href="/">
+        <div class="logo"></div>
+        <div class="logo-text"></div>
+    </a>
+   
     <div class="navigation">
 
         <a href="/" class="navigation-item">
@@ -120,22 +127,34 @@
             {
                 var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
                 userID = Convert.ToInt32(userIdClaim?.Value);
-
-                UserDAO userDAO = new UserDAO();
-                try
-                {
-                    UserModel? userModel = userDAO.Get(userID);
-                    if(userModel != null)
-                    {
-                        credits = userModel.Current_Credits;
-                    }              
-                }
-                catch(Exception)
-                {
-                    
-                }
+                UpdateCreditsCounter();
+                creditService.OnCreditsUpdate += UpdateCreditsCounter;
             }
         }
+    }
+
+    void IDisposable.Dispose()
+    {
+        creditService.OnCreditsUpdate -= UpdateCreditsCounter;
+    }
+
+    private void UpdateCreditsCounter()
+    {
+        UserDAO userDAO = new UserDAO();
+        try
+        {
+            UserModel? userModel = userDAO.Get(userID);
+            if (userModel != null)
+            {
+                credits = userModel.Current_Credits;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        StateHasChanged();
     }
 
     private async Task Logout()

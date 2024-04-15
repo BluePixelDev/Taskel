@@ -26,6 +26,8 @@ a, .btn-link {
 
 .content-wrapper {
     padding: 2em;
+    padding-left: 10em;
+    padding-right: 10em;
 }
  
 @media only screen and (max-width: 900px) {

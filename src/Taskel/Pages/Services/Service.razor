@@ -2,10 +2,12 @@
 @using TaskelDB.Models.Service;
 @using Taskel.Authentication;
 @using System.Security.Claims;
+@using Taskel.Services;
 
 @page "/service/{ServiceID:int}"
 
 @inject NavigationManager navManager;
+@inject CreditService creditService;
 @inherits ServicePage;
 
 <div class="content-wrapper">
@@ -26,6 +28,10 @@
                     @if (IsOwner())
                     {
                         <button class="submit-button" @onclick="EditService">Edit Service</button>
+                    }
+                    else
+                    {
+                        <button class="submit-button" @onclick="BuyService">Buy Service</button>
                     }
 
                 </Authorized>
@@ -70,6 +76,14 @@
         if (IsOwner())
         {
             navManager.NavigateTo($"/service/edit/{serviceModel?.ID}");
+        }
+    }
+
+    private void BuyService()
+    {
+        if (serviceModel != null)
+        {
+            creditService.SpendCredits(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
         }
     }
 

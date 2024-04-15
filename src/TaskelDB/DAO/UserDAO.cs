@@ -5,7 +5,7 @@ using TaskelDB.Utility;
 namespace TaskelDB.DAO
 {
     public class UserDAO : BaseDAO<UserModel>
-	{
+    {
         #region QUERIES
         private static readonly string sqlGetCmd = @"
 			SELECT
@@ -54,7 +54,7 @@ namespace TaskelDB.DAO
 				LEFT JOIN email_addresses ON email_addresses.user_id = users.id
 			WHERE email_address = @email_address";
 
-		private static readonly string sqlAddCreditsCmd = @"
+        private static readonly string sqlAddCreditsCmd = @"
 			UPDATE 
 				users
 			SET 
@@ -68,48 +68,48 @@ namespace TaskelDB.DAO
         /// Creates new User entry in the database.
         /// </summary>
         public long Create(UserModel user)
-		{
+        {
             return CreateElement(user, sqlCreateCmd);
         }
 
-		/// <summary>
-		/// Returns user from the database with target id.
-		/// </summary>
-		public UserModel? Get(long id)
-		{
+        /// <summary>
+        /// Returns user from the database with target id.
+        /// </summary>
+        public UserModel? Get(long id)
+        {
             return GetElement(id, sqlGetCmd);
         }
 
-		/// <summary>
-		/// Returns all users from the database.
-		/// </summary>
-		public List<UserModel> GetAll()
-		{
-			try
-			{
-				return GetElements(sqlGetAllCmd);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error getting all users: {ex.Message}");
-			}
+        /// <summary>
+        /// Returns all users from the database.
+        /// </summary>
+        public List<UserModel> GetAll()
+        {
+            try
+            {
+                return GetElements(sqlGetAllCmd);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting all users: {ex.Message}");
+            }
 
-			return [];
-		}
+            return [];
+        }
 
-		/// <summary>
-		/// Update row data of specified User.
-		/// </summary>
-		public void Update(UserModel user)
-		{
+        /// <summary>
+        /// Update row data of specified User.
+        /// </summary>
+        public void Update(UserModel user)
+        {
             UpdateElement(user, sqlUpdateCmd);
         }
 
-		/// <summary>
-		/// Deletes user with given id from the database
-		/// </summary>
-		public void Delete(long id)
-		{
+        /// <summary>
+        /// Deletes user with given id from the database
+        /// </summary>
+        public void Delete(long id)
+        {
             DeleteElement(id, sqlDeleteCmd);
         }
 
@@ -142,10 +142,10 @@ namespace TaskelDB.DAO
         /// Returns user from the database with specified email.
         /// </summary>
         public UserModel? GetUserByEmail(string emailAddress)
-		{
-			using var conn = DBConnection.Instance.GetConnection();
-			DBParameters parameters = new();
-			parameters.AddParameter("email_address", emailAddress);
+        {
+            using var conn = DBConnection.Instance.GetConnection();
+            DBParameters parameters = new();
+            parameters.AddParameter("email_address", emailAddress);
 
             using var cmd = DBUtility.CreateCommand(conn, sqlGetByEmailCmd, parameters);
             using var reader = cmd.ExecuteReader();
@@ -155,16 +155,16 @@ namespace TaskelDB.DAO
             }
 
             return null;
-		}
+        }
 
-		public void AddCreditsTransaction(MySqlConnection conn, MySqlTransaction transaction, int userID, int amount)
-		{
+        public static void AddCreditsTransaction(MySqlConnection conn, MySqlTransaction transaction, int userID, int amount)
+        {
             DBParameters parameters = new();
             parameters.AddParameter("user_id", userID);
             parameters.AddParameter("transfer_amount", amount);
             using var cmd = DBUtility.CreateCommand(conn, sqlAddCreditsCmd, parameters);
-			cmd.Transaction = transaction;
-			cmd.ExecuteNonQuery();
+            cmd.Transaction = transaction;
+            cmd.ExecuteNonQuery();
         }
-	}
+    }
 }

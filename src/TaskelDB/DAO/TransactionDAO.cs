@@ -1,8 +1,5 @@
 ﻿using MySqlConnector;
 using TaskelDB.Models;
-using TaskelDB.Models.Conversation;
-using TaskelDB.Models.Service;
-using TaskelDB.Models.User;
 using TaskelDB.Utility;
 
 namespace TaskelDB.DAO
@@ -133,7 +130,7 @@ namespace TaskelDB.DAO
 			try
 			{
                 UserDAO userDAO = new();
-                userDAO.AddCreditsTransaction(conn, transaction, userID, amount);
+                UserDAO.AddCreditsTransaction(conn, transaction, userID, amount);
 
 				TransactionModel model = new()
 				{
@@ -154,5 +151,41 @@ namespace TaskelDB.DAO
 				transaction.Rollback();
 			}	
         }
-	}
+
+        public void TransferCreditsToUser(int fromUserID, int toUserID, int serviceID, int amount)
+        {
+            if (amount <= 0)
+            {
+                throw new Exception("The transfer amount can't be smaller or equal to zero!");
+            }
+
+            var conn = DBConnection.Instance.GetConnection();
+            var transaction = conn.BeginTransaction();
+
+            try
+            {
+                UserDAO userDAO = new();
+                UserDAO.AddCreditsTransaction(conn, transaction, fromUserID, -amount);
+                UserDAO.AddCreditsTransaction(conn, transaction, toUserID, amount);
+
+                TransactionModel model = new()
+                {
+                    Receiver_ID = toUserID,
+                    Sender_ID = fromUserID,
+                    Send_Date = DateOnly.FromDateTime(DateTime.UtcNow),
+                    Send_Time = TimeOnly.FromDateTime(DateTime.UtcNow),
+                    Cost = amount,
+                    Service_ID = serviceID,
+                };
+
+                CreateElementTransaction(model, sqlCreateCmd, conn, transaction);
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                transaction.Rollback();
+            }
+        }
+    }
 }

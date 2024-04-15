@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MySqlConnector;
 using Taskel.Authentication;
-using Taskel.Pages.Services;
+using Taskel.Services;
 using TaskelDB;
 
 namespace Taskel
@@ -22,6 +22,7 @@ namespace Taskel
             builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<TaskelAuthenticationStateProvider>());
             builder.Services.AddScoped<AuthenticationStateProvider, TaskelAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<CreditService>();
             var app = builder.Build();
 
             var connectionString = builder.Configuration["ConnectionStrings:DatabaseConnection"] ?? "";

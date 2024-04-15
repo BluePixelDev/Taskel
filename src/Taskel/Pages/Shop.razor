@@ -2,14 +2,16 @@
 @using System.Security.Claims
 @using TaskelDB.DAO;
 @using Taskel.Authentication;
+@using Taskel.Services;
 
-@inject NavigationManager NavManager;
+@inject NavigationManager navManager;
+@inject CreditService creditService;
 
 <div class="margin-top-medium">
     <h1 class="text-align-center">Shop</h1>
 
-    <div class="shop-packages" @onclick="() => BuyCredits(100)">
-        <div class="shop-package">
+    <div class="shop-packages">
+        <div class="shop-package" @onclick="() => BuyCredits(100)">
             <h1 class="text-align-center">Small</h1>
             <p>100 K</p>
             <p>50 Kč</p>
@@ -46,15 +48,14 @@
             }
             else
             {
-                NavManager.NavigateTo("/signup");
+                navManager.NavigateTo("/signup");
             }
         }
     }
 
     private void BuyCredits(int amount)
     {
-        TransactionDAO dao = new();
-        dao.AddCreditsToUser(userID, -1, amount);
-        NavManager.Refresh();
+        Console.WriteLine("Buying: " + amount);
+        creditService.BuyCredits(userID, amount);
     }
 }
