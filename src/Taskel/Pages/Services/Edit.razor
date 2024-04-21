@@ -8,53 +8,66 @@
 @page "/service/edit/{ServiceID:int}"
 
 <div class="content-wrapper">
-    <div class="center-absolute">
+    <div class="center-absolute edit-popup">
 
-        <h2>Edit Service</h2>
+        <h2 class="text-align-center">Edit Service</h2>
 
-        <h3>name:</h3>
-        <input class="input-field" type="text" @bind="@serviceModel.Ser_Name" />
+        <label class="field-label" for="edit-name">Name</label>
+        <input class="input-field edit-field" type="text" @bind="serviceName" />
 
-        <h3>price:</h3>
-        <input class="input-field" type="number" @bind="@serviceModel.Current_Price" />
+        <label class="field-label" for="edit-name">Price</label>
+        <input class="input-field number-field edit-field" type="number" @bind="currentPrice" />
 
-        <h3>short:</h3>
-        <input class="input-field" type="text" @bind="@serviceModel.Short_Description" />
+        <label class="field-label" for="edit-name">Description</label>
+        <textarea class="input-field edit-field description-area" @bind="serviceDesc" />
 
-        <h3>long:</h3>
-        <textarea class="input-field" type="text" @bind="@serviceModel.Long_Description" />
-
-        <label for="selectedValue">Set Category:</label>
-        <InputSelect id="selectedValue" @bind-Value="selectedCategory">
+        <label class="field-label" for="selectedValue">Category</label>
+        <select class="category-select" id="selectedValue" value="@serviceCategory" @onchange="ChangeCategory">
             @foreach (var option in Enum.GetValues(typeof(ServiceCategory)).Cast<ServiceCategory>())
             {
                 <option value="@option">@option.ToString()</option>
             }
-        </InputSelect>
-        <br />
-        <label for="visibility-value">Set visibility:</label>
-        <InputCheckbox id="visibility-value" @bind-Value="serviceModel.IsShown"> </InputCheckbox>
+        </select>
 
         <p style="color: red;">@warningText</p>
-        <button class="login-button" @onclick="EditService">Confirm</button>
-        <button class="login-button" @onclick="DeleteService">Delete Service</button>
+        <button class="submit-button" @onclick="SaveChanges">Save</button>
+        <a class="submit-button" href="/dashboard">Cancel</a>
+        <button class="submit-button" @onclick="DeleteService">Delete Service</button>
 
     </div>
 </div>
 
 @code {
     [Parameter] public int serviceID { get; set; }
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
-    private ServiceCategory selectedCategory { get; set; } = ServiceCategory.Uncategorized;
+    private string serviceName = "";
+    private string serviceDesc = "";
+    private int currentPrice = 0;
+    private ServiceCategory serviceCategory { get; set; } = ServiceCategory.Uncategorized;
+
     private ServiceModel serviceModel = new();
     private ServiceDAO serviceDAO = new();
 
     private string warningText = "";
-
     private int userID;
-    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (await CheckIfAuthorized())
+            {
+                FetchAndSetData();
+            }
+            else
+            {
+                NavManager.NavigateTo("/signup");
+            }
+        }
+    }
+
+    private async Task<bool> CheckIfAuthorized()
     {
         if (authenticationState != null)
         {
@@ -63,23 +76,25 @@
             {
                 var userIdClaim = authState.User?.FindFirst(ClaimTypes.NameIdentifier);
                 userID = Convert.ToInt32(userIdClaim?.Value);
-            }
-            else
-            {
-                NavManager.NavigateTo("/signup");
+                return true;
             }
         }
-        SetInitialData();
+
+        return false;
     }
 
-    private void SetInitialData()
+    private void FetchAndSetData()
     {
         ServiceModel? tempModel = serviceDAO.Get(serviceID);
 
         if (tempModel != null)
         {
             serviceModel = tempModel;
-            selectedCategory = (ServiceCategory)serviceModel.Category;
+            serviceName = serviceModel.Ser_Name;
+            currentPrice = serviceModel.Current_Price;
+            serviceDesc = serviceModel.Long_Description;
+            serviceCategory = (ServiceCategory)serviceModel.Category;
+            StateHasChanged();
         }
         else
         {
@@ -87,6 +102,21 @@
         }
     }
 
+    private void ChangeCategory(ChangeEventArgs e)
+    {
+        if (e != null && e.Value != null)
+        {
+            if (Enum.TryParse<ServiceCategory>(e.Value.ToString(), out ServiceCategory result))
+            {
+                serviceCategory = result;
+                return;
+            }
+        }
+        serviceCategory = ServiceCategory.Uncategorized;
+    }
+
+
+    //==== CONTROL ====
     private void DeleteService()
     {
         if (IsOwner())
@@ -95,8 +125,18 @@
             NavManager.NavigateTo("/dashboard");
         }
     }
-    private void EditService()
+
+    private void SaveChanges()
     {
+        string shortDesc = serviceDesc.Substring(0, Math.Min(serviceDesc.Length, 47));
+        if (serviceDesc.Length > 47) shortDesc += "...";
+
+        serviceModel.Ser_Name = serviceName;
+        serviceModel.Short_Description = shortDesc;
+        serviceModel.Long_Description = serviceDesc;
+        serviceModel.Current_Price = currentPrice;
+        serviceModel.Category = (int)serviceCategory;
+
         if (serviceModel.Ser_Name.Length < 3)
         {
             warningText = "name is too short (min 3 characters)";
@@ -105,11 +145,6 @@
         if (serviceModel.Ser_Name.Length > 20)
         {
             warningText = "name is too long (max 20 characters)";
-            return;
-        }
-        if (serviceModel.Short_Description.Length > 50)
-        {
-            warningText = "short description is too long (max 50 characters)";
             return;
         }
         if (serviceModel.Long_Description.Length > 500)
@@ -122,11 +157,16 @@
             warningText = "Price is over the maximum";
             return;
         }
+        if (serviceModel.Current_Price < 0)
+        {
+            warningText = "Price can't be less than zero";
+            return;
+        }
 
         if (IsOwner())
         {
             serviceModel.Update = DateTime.UtcNow;
-            serviceModel.Category = (int)selectedCategory;
+            serviceModel.Category = (int)serviceCategory;
             serviceDAO.Update(serviceModel);
             NavManager.NavigateTo("/dashboard");
         }
@@ -136,8 +176,5 @@
         }
     }
 
-    private bool IsOwner()
-    {
-        return serviceModel?.User_ID == userID;
-    }
+    private bool IsOwner() => serviceModel?.User_ID == userID;
 }

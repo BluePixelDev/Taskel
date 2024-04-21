@@ -8,44 +8,46 @@
 @page "/service/create"
 
 <div class="content-wrapper">
-    <div class="center-absolute">
-        <h2>Create</h2>
-        <p>Name:</p>
-        <input class="input-field" type="text" @bind="@serviceModel.Ser_Name" />
-        <p>Price:</p>
-        <input class="input-field" type="number" @bind="@serviceModel.Current_Price" />
-        <p>Short:</p>
-        <input class="input-field" type="text" @bind="@serviceModel.Short_Description" />
-        <p>Long:</p>
-        <textarea class="input-field" type="text" @bind="@serviceModel.Long_Description" />
+    <div class="center-absolute create-popup">
 
+        <h2 class="text-align-center">Create</h2>
+        <label class="field-label" for="edit-name">Name</label>
+        <input class="input-field create-field" type="text" @bind="serviceName" />
 
-        <label for="selectedValue">Set Category:</label>
-        <InputSelect id="selectedValue" @bind-Value="selectedCategory">
+        <label class="field-label" for="edit-name">Price</label>
+        <input class="input-field number-field create-field" type="number" @bind="currentPrice" />
+
+        <label class="field-label" for="edit-name">Description</label>
+        <textarea class="input-field create-field description-area" @bind="serviceDesc" />
+
+        <label class="field-label" for="selectedValue">Category</label>
+        <select class="category-select" id="selectedValue" value="@serviceCategory" @onchange="ChangeCategory">
             @foreach (var option in Enum.GetValues(typeof(ServiceCategory)).Cast<ServiceCategory>())
             {
                 <option value="@option">@option.ToString()</option>
             }
-        </InputSelect>
-        <br />
-        <label for="visibility-value">Is Listed:</label>
-        <InputCheckbox id="visibility-value" @bind-Value="serviceModel.IsShown"> </InputCheckbox>
+        </select>
 
         <p style="color:red;">@WarningText</p>
-        <button class="login-button" @onclick="CreateService">create</button>
+        <button class="submit-button" @onclick="CreateService">Create</button>
+        <a class="submit-button" href="/dashboard">Cancel</a>
     </div>
 </div>
 
 
 @code {
-    private ServiceCategory selectedCategory { get; set; } = ServiceCategory.Uncategorized;
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
+    private string serviceName = "";
+    private string serviceDesc = "";
+    private int currentPrice = 0;
+    private ServiceCategory serviceCategory { get; set; } = ServiceCategory.Uncategorized;
 
     ServiceDAO serviceDAO = new();
     ServiceModel serviceModel = new();
     private string WarningText = "";
 
     private int userID;
-    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -64,8 +66,30 @@
         }
     }
 
+    private void ChangeCategory(ChangeEventArgs e)
+    {
+        if (e != null && e.Value != null)
+        {
+            if (Enum.TryParse<ServiceCategory>(e.Value.ToString(), out ServiceCategory result))
+            {
+                serviceCategory = result;
+                return;
+            }
+        }
+        serviceCategory = ServiceCategory.Uncategorized;
+    }
+
     public void CreateService()
     {
+        string shortDesc = serviceDesc.Substring(0, Math.Min(serviceDesc.Length, 47));
+        if (serviceDesc.Length > 47) shortDesc += "...";
+
+        serviceModel.Ser_Name = serviceName;
+        serviceModel.Short_Description = shortDesc;
+        serviceModel.Long_Description = serviceDesc;
+        serviceModel.Current_Price = currentPrice;
+        serviceModel.Category = (int)serviceCategory;
+
         if (serviceModel.Ser_Name.Length < 3)
         {
             WarningText = "Name is too short (min 3 characters)";
@@ -93,7 +117,7 @@
         }
 
         serviceModel.User_ID = userID;
-        serviceModel.Category = (int)selectedCategory;   
+        serviceModel.Category = (int)serviceCategory;   
         serviceDAO.Create(serviceModel);
         NavManager.NavigateTo("/dashboard");
     }

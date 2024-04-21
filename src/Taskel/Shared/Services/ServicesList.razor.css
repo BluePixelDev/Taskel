@@ -1,0 +1,12 @@
+﻿
+.services-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
+    grid-auto-rows: minmax(400px, auto);
+    margin-top: 5em;
+    gap: 10px;
+}
+
+.service-wrapper {
+    max-height: 100px;
+}

@@ -3,6 +3,7 @@
     --secondary-color: #eeeeee;
     --background-color: #222226;
     --tint-color: #2AB047;
+    --tint-color-darker: #219139;
     --header-color: #393939;
     --header-color-highlight: #4d4d4d;
     --footer-color: #393939;
@@ -10,10 +11,17 @@
     --footer-height: 35px;
     --card-color-normal: #2c2c30;
     --card-color-hover: #343438;
+    --roboto-medium: "Roboto Medium";
+    --roboto-regular: "Roboto Regular";
+    --poppins-extrabold: "Poppins ExtraBold"
 }
 
 html, body {
-    font-family: 'Poppins ExtraBold';
+    font-family: var(--roboto-regular);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--poppins-extrabold);
 }
 
 body {
@@ -29,7 +37,7 @@ a, .btn-link {
     padding-left: 10em;
     padding-right: 10em;
 }
- 
+
 @media only screen and (max-width: 900px) {
     .content-wrapper {
         padding: 0.8em;
@@ -46,7 +54,16 @@ a, .btn-link {
     color: white;
     border-radius: 4px;
     font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    margin: 4px;
+    font-family: var(--poppins-extrabold);
 }
+
+    .submit-button:hover {
+        color: white;
+        background-color: var(--tint-color-darker)
+    }
 
 .input-field {
     display: flex;
@@ -64,13 +81,18 @@ a, .btn-link {
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
+    font-family: var(--roboto-regular);
 }
 
     .input-field::placeholder {
         color: rgb(255, 255, 255, 70);
+        font-family: var(--roboto-regular);
     }
+
+.field-label {
+    font-family: var(--roboto-regular);
+}
 
 h1 {
     outline: none;
 }
-

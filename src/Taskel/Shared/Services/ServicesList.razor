@@ -1,6 +1,11 @@
 ﻿@using TaskelDB.Models.Service;
 
 <div class="services-wrapper">
+    @if(OnCreate != null)
+    {
+        <CreateCard OnClick="CardClick"></CreateCard>
+    }
+
     @foreach (ServiceModel serviceModel in Services)
     {
         <ServiceCard ServiceModel=serviceModel />
@@ -9,4 +14,10 @@
 
 @code {
     [Parameter] public ServiceModel[] Services { get; set; } = [];
+    [Parameter] public Action? OnCreate { get; set; } = null;
+
+    private void CardClick()
+    {
+        OnCreate?.Invoke();
+    }
 }

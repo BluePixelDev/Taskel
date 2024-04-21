@@ -13,20 +13,20 @@
     <div class="shop-packages">
         <div class="shop-package" @onclick="() => BuyCredits(100)">
             <h1 class="text-align-center">Small</h1>
-            <p>100 K</p>
-            <p>50 Kč</p>
+            <h6>100 K</h6>
+            <h6>50 Kč</h6>
         </div>
 
         <div class="shop-package" @onclick="() => BuyCredits(500)">
             <h1 class="text-align-center">Medium</h1>
-            <p>500 K</p>
-            <p>250 Kč</p>
+            <h6>500 K</h6>
+            <h6>250 Kč</h6>
         </div>
 
         <div class="shop-package" @onclick="() => BuyCredits(1000)">
             <h1 class="text-align-center">Big</h1>
-            <p>1000 K</p>
-            <p>500 Kč</p>
+            <h6>1000 K</h6>
+            <h6>500 Kč</h6>
         </div>
     </div>
 
@@ -55,7 +55,7 @@
 
     private void BuyCredits(int amount)
     {
-        Console.WriteLine("Buying: " + amount);
         creditService.BuyCredits(userID, amount);
+        navManager.NavigateTo("/");
     }
 }

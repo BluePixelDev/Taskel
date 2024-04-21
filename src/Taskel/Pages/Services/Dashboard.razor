@@ -1,4 +1,5 @@
-﻿@using TaskelDB.Models.Service;
+﻿@using Taskel.Shared.Services
+@using TaskelDB.Models.Service;
 @using TaskelDB.DAO;
 @using Taskel.Authentication;
 @using System.Security.Claims;
@@ -8,17 +9,7 @@
 @page "/dashboard"
 
 <div class="content-wrapper">
-    <h1>Your Services:</h1>
-    <a href="service/create">
-        <button>Create New Service</button>
-    </a>
-
-    <div class="services-wrapper">
-        @foreach(ServiceModel serviceModel in serviceModels)
-        {
-            <ServiceCard ServiceModel="serviceModel" />
-        }
-    </div>
+    <ServicesList Services=serviceModels OnCreate=@CreateNewService/>
 </div>
 
 @code {
@@ -48,6 +39,11 @@
     {
         ServiceDAO serviceDAO = new();
         serviceModels = serviceDAO.GetAllServicesByUser(userID).ToArray();
+    }
+
+    private void CreateNewService()
+    {
+        navManager.NavigateTo("/service/create");
     }
 }
 

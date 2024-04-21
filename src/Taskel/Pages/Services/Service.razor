@@ -8,7 +8,6 @@
 
 @inject NavigationManager navManager;
 @inject CreditService creditService;
-@inherits ServicePage;
 
 <div class="content-wrapper">
     <div class="service-wrapper">
@@ -19,7 +18,6 @@
         </div>
         <div class="service-lower-wrapper">
             <p class="label">Description</p>
-
             <p>@serviceModel?.Long_Description</p>
 
             <AuthorizeView>
@@ -35,6 +33,11 @@
                     }
 
                 </Authorized>
+
+                <NotAuthorized>
+                    <a class="submit-button" href="/signup">Buy Service</a>
+                </NotAuthorized>
+
             </AuthorizeView>
 
             @if (!string.IsNullOrEmpty(WarningText))
@@ -46,11 +49,14 @@
 </div>
 
 @code {
+
+    [Parameter] public int ServiceID { get; set; }
+    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
     ServiceModel? serviceModel;
     public string WarningText { get; set; } = "";
-
     private int userID;
-    [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,7 +89,13 @@
     {
         if (serviceModel != null)
         {
-            creditService.SpendCredits(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
+            try
+            {
+                creditService.SpendCredits(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
+            }catch
+            {
+                WarningText = "Error occured while trying to buy a service.";
+            }
         }
     }
 

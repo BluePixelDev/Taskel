@@ -15,10 +15,12 @@
     display: flex;
     flex-direction: column;
     text-align: left;
+    font-family: var(--roboto-regular)
 }
 .service-heading{
     display: flex;
     text-align: center;
+    text-transform: capitalize;
     margin: 0;
 }
 .price-tag{

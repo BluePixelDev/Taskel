@@ -61,7 +61,7 @@
 
 .alien {
     position: absolute;
-   
+    filter: drop-shadow(5px, 5px, 5px, black)
 }
 
 .alien-image {

@@ -1,0 +1,14 @@
+﻿@using TaskelDB.Models.Service;
+
+<button class="create-card-button" @onclick="ClickButton">
+    <div class="create-card-plus-circle">
+        <span class="center-absolute"></span>
+        <span class="center-absolute"></span>
+    </div>
+</button>
+
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private void ClickButton() => OnClick.InvokeAsync();
+}
