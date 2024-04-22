@@ -8,8 +8,8 @@ namespace Taskel.Services
 
         public void BuyCredits(int userID, int amount)
         {
-            TransactionDAO dao = new();
-            dao.AddCreditsToUser(userID, -1, amount);
+            CreditBuyDAO dao = new();
+            dao.BuyCredits(userID, amount);
             OnCreditsUpdate?.Invoke();
         }
 
