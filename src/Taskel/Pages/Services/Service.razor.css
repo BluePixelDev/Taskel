@@ -23,6 +23,7 @@
 .price-tag {
     margin-left: auto;
     margin: 0;
+    margin-left: 100px;
     word-break: keep-all;
     white-space: nowrap;
 }
