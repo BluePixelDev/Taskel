@@ -9,7 +9,7 @@
         flex-direction: column;
         width: 100%;
         height: 100%;
-        padding: 0.5em;
+        padding: 1.5em;
         border-radius: 4px;
         text-decoration: none;
         background-color: var(--card-color-normal);
@@ -32,7 +32,8 @@ a:hover {
 
     .service-price p {
         margin-bottom: 0;
-        color: var(--tint-color)
+        font-family: var(--poppins-extrabold);
+        color: white;
     }
 
 .service-name {

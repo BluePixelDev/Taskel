@@ -44,6 +44,11 @@
             {
                 <ErrorBox message=@WarningText />
             }
+
+            @if (!string.IsNullOrEmpty(InfoText))
+            {
+                <InfoBox message=@InfoText />
+            }
         </div>
     </div>
 </div>
@@ -55,6 +60,7 @@
 
     ServiceModel? serviceModel;
     public string WarningText { get; set; } = "";
+    public string InfoText { get; set; } = "";
     private int userID;
 
 
@@ -92,6 +98,7 @@
             try
             {
                 creditService.BuyService(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
+                InfoText = "You bought this service! Horay!";
             }catch
             {
                 WarningText = "Error occured while trying to buy a service.";

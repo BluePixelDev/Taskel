@@ -1,7 +1,7 @@
 ﻿@using TaskelDB.Models.Service;
 
 <div class="service-wrapper">
-    <a href="/service/@serviceID">
+    <a href="/service/@serviceID" style="background-color:@color">
 
         <div>
             <h3 class="service-name">@serviceName</h3>
@@ -17,6 +17,8 @@
 
 @code {
     [Parameter] public ServiceModel? ServiceModel { get; set; }
+    private string color = "blue";
+    private string[] colors = { "#70A55A", "#5178AE", "#AE5178" };
 
     private long serviceID = -1;
     private string serviceName = "";
@@ -26,6 +28,9 @@
 
     protected override void OnParametersSet()
     {
+        var rnd = new Random(Guid.NewGuid().GetHashCode());
+        color = colors[rnd.Next(colors.Length)];
+
         serviceID = ServiceModel != null ? ServiceModel.ID : -1;
         serviceName = ServiceModel != null ? ServiceModel.Ser_Name : "";
         serviceOwner = ServiceModel != null ? "" + ServiceModel?.UserModel?.Name : "";
