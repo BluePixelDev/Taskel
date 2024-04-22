@@ -91,7 +91,7 @@
         {
             try
             {
-                creditService.SpendCredits(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
+                creditService.BuyService(userID, serviceModel.User_ID, serviceModel.ID, serviceModel.Current_Price);
             }catch
             {
                 WarningText = "Error occured while trying to buy a service.";

@@ -4,7 +4,6 @@
     max-width: 800px;
     width: 100%;
     align-self:center;
-    text-align: center;
     margin-top: 1em;
 }
 .service-upper-wrapper{
@@ -14,22 +13,20 @@
 .service-lower-wrapper {
     display: flex;
     flex-direction: column;
-    text-align: left;
     font-family: var(--roboto-regular)
 }
 .service-heading{
     display: flex;
-    text-align: center;
     text-transform: capitalize;
     margin: 0;
 }
-.price-tag{
+.price-tag {
     margin-left: auto;
-    text-align: center;
-}
-.price-tag h2{
     margin: 0;
+    word-break: keep-all;
+    white-space: nowrap;
 }
+
 .submit-button {
    margin-bottom: 20px;
    max-width: 250px;

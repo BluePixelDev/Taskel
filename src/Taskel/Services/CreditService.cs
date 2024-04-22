@@ -13,7 +13,7 @@ namespace Taskel.Services
             OnCreditsUpdate?.Invoke();
         }
 
-        public void SpendCredits(int buyerID, int sellerID, int serviceID, int amount) 
+        public void BuyService(int buyerID, int sellerID, int serviceID, int amount) 
         {
             TransactionDAO dao = new();
             dao.TransferCreditsToUser(buyerID, sellerID, serviceID, amount);

@@ -145,10 +145,10 @@ namespace TaskelDB.DAO
 				CreateElementTransaction(model, sqlCreateCmd, conn, transaction);
 				transaction.Commit();
             }
-			catch (Exception ex)
+			catch
             {
-				Console.WriteLine(ex.Message);
 				transaction.Rollback();
+				throw;
 			}	
         }
 
@@ -181,10 +181,10 @@ namespace TaskelDB.DAO
                 CreateElementTransaction(model, sqlCreateCmd, conn, transaction);
                 transaction.Commit();
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+            catch
+            {             
                 transaction.Rollback();
+				throw;
             }
         }
     }
