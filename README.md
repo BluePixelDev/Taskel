@@ -6,3 +6,5 @@ The platform mainly focuses on the game developer scene, offering space to adver
 
     - Frontend & Backend: Ondřej Kačírek
     - Database & Backend: Anton Kalashnikov
+
+**Developed using Blazor**
